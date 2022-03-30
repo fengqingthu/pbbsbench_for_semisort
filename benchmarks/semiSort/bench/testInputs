@@ -10,7 +10,7 @@ tests = [
 
     # Benchmarks according to Figure 1
 
-    # ---------- Note here the first parameter is distribution parameter and the second sequence length ---------- 
+    # ---------- Note here the first parameter is sequence length and the second distribution parameter ---------- 
 
     [1, "expDistSeq_100M_100", "", ""],
     [1, "expDistSeq_100M_1K", "", ""],
