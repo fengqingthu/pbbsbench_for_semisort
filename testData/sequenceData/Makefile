@@ -3,11 +3,24 @@ include common/parallelDefs
 COMMON = common/sequenceIO.h common/IO.h common/parse_command_line.h
 LIB = parlay/parallel.h
 SEQUENCEGEN = $(COMMON) $(LIB) 
-GENERATORS = equalSeq randomSeq almostSortedSeq almostEqualSeq exptSeq trigramSeq addDataSeq trigramString
+GENERATORS = equalSeq randomSeq almostSortedSeq almostEqualSeq exptSeq trigramSeq addDataSeq trigramString uniDistSeq expDistSeq zipfDistSeq
 
 .PHONY: all clean
 all: $(GENERATORS)
 
+# ---------------- Modified for semisort ---------------------
+# added three types of distributions of input sequence
+# the sequence is then used to build the input record objects
+uniDistSeq : uniDistSeq.cpp $(SEQUENCEGEN)
+	$(CC) $(CFLAGS) $(LFLAGS) -o $@ $@.cpp 
+
+expDistSeq : expDistSeq.cpp $(SEQUENCEGEN)
+	$(CC) $(CFLAGS) $(LFLAGS) -o $@ $@.cpp 
+
+zipfDistSeq : zipfDistSeq.cpp $(SEQUENCEGEN)
+	$(CC) $(CFLAGS) $(LFLAGS) -o $@ $@.cpp 
+
+# ------------------------------------------------------------
 classifyClean : classifyClean.C $(SEQUENCEGEN)
 	$(CC) $(CFLAGS) $(LFLAGS) -o $@ $@.C 
 

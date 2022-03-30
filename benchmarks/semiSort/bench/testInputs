@@ -1,18 +1,38 @@
 #!/usr/bin/python 
  
-bnchmrk="isort"
-benchmark="Integer Sort"
-checkProgram="../bench/isortCheck" 
+bnchmrk="semiSort"
+benchmark="Semi Sort"
+checkProgram="../bench/semiSortCheck" 
 dataDir = "../sequenceData/data"
 
-tests = [
-    [1, "randomSeq_100M_int", "-b 27", ""], 
-    [1, "exptSeq_100M_int", "-b 27", ""], 
-    [1, "randomSeq_100M_int_pair_int", "-b 27", ""], 
-    [1, "randomSeq_100M_256_int_pair_int", "-b 8", ""], 
+tests = [ 
+    # [weight, inputFileNames, runOptions, checkOptions] = test
+
+    # Benchmarks according to Figure 1
+
+    # ---------- Note here the first parameter is distribution parameter and the second sequence length ---------- 
+
+    [1, "expDistSeq_100M_100", "", ""],
+    [1, "expDistSeq_100M_1K", "", ""],
+    [1, "expDistSeq_100M_10K", "", ""], 
+    [1, "expDistSeq_100M_100K", "", ""], 
+    [1, "expDistSeq_100M_300K", "", ""], 
+    [1, "expDistSeq_100M_1M", "", ""],
+    [1, "uniDistSeq_100M_10", "", ""],
+    [1, "uniDistSeq_100M_100K", "", ""], 
+    [1, "uniDistSeq_100M_320K", "", ""],
+    [1, "uniDistSeq_100M_500K", "", ""],
+    [1, "uniDistSeq_100M_1M", "", ""],
+    [1, "uniDistSeq_100M_100M", "", ""], 
+    [1, "zipfDistSeq_100M_10K", "", ""],
+    [1, "zipfDistSeq_100M_100K", "", ""], 
+    [1, "zipfDistSeq_100M_1M", "", ""], 
+    [1, "zipfDistSeq_100M_10M", "", ""],
+    [1, "zipfDistSeq_100M_100M", "", ""],
     ] 
 
 import sys
 sys.path.insert(0, 'common')
 import runTests
+# def timeAllArgs(runProgram, problem, checkProgram, dataDir, tests, keepInputData=False):
 runTests.timeAllArgs(bnchmrk, benchmark, checkProgram, dataDir, tests)
