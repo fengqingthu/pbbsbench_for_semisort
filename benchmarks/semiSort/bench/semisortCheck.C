@@ -23,6 +23,7 @@
 #include <iostream>
 #include <algorithm>
 #include <cstring>
+#include <map>
 #include "parlay/parallel.h"
 #include "parlay/primitives.h"
 #include "common/sequenceIO.h"
