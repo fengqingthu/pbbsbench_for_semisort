@@ -31,7 +31,7 @@ using namespace std;
 using namespace benchIO;
 
 template <class T>
-void timeIntegerSort(sequence<sequence<char>> In, int rounds, int bits, char* outFile) {
+void timeSemiSort(sequence<sequence<char>> In, int rounds, int bits, char* outFile) {
   auto in_vals = parseElements<T>(In.cut(1, In.size()));
   size_t n = in_vals.size();
   sequence<T> R;
@@ -55,10 +55,10 @@ int main(int argc, char* argv[]) {
 
   switch (in_type) {
   case intType: 
-    timeIntegerSort<uint>(In, rounds, bits, oFile);
+    timeSemiSort<uint>(In, rounds, bits, oFile);
     break;
   case intPairT: 
-    timeIntegerSort<uintPair>(In, rounds, bits, oFile);
+    timeSemiSort<uintPair>(In, rounds, bits, oFile);
     break;
   default:
     cout << "integer Sort: input file not of right type" << endl;

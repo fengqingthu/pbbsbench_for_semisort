@@ -2,8 +2,8 @@ include common/parallelDefs
 
 INCLUDE = -Icommon -Ipbbslib
 
-isortCheck: isortCheck.C 
-	$(CC) $(CFLAGS) $(LFLAGS) $(INCLUDE) -o isortCheck isortCheck.C
+isortCheck: semisortCheck.C 
+	$(CC) $(CFLAGS) $(LFLAGS) $(INCLUDE) -o semisortCheck semisortCheck.C
 
 clean :
 	rm -f isortCheck

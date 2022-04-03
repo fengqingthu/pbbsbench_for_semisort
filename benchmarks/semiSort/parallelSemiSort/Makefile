@@ -1,6 +1,6 @@
 include common/parallelDefs
 
-BENCH = isort
+BENCH = semiSort
 
 include common/MakeBench
 
