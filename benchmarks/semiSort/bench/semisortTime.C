@@ -25,6 +25,7 @@
 #include "common/time_loop.h"
 #include "common/parse_command_line.h"
 #include "common/sequenceIO.h"
+#include "../parallelSemiSort/semiSort.h"
 #include <iostream>
 #include <algorithm>
 using namespace std;
@@ -34,10 +35,16 @@ template <class T>
 void timeSemiSort(sequence<sequence<char>> In, int rounds, int bits, char* outFile) {
   auto in_vals = parseElements<T>(In.cut(1, In.size()));
   size_t n = in_vals.size();
+  parlay::sequence<record<string, T>> int_keys(n);
+  for (int i = 0; i < n; i++) {
+    record<string, T> a = {"object_" + to_string(i), in_vals[i], 0};
+    int_keys[i] = a;
+  }
   sequence<T> R;
   time_loop(rounds, 1.0,
        [&] () {R.clear();},
-       [&] () {R = int_sort(make_slice(in_vals.data(),in_vals.data()+n), bits);}, // TODO: semisort here?
+      //  [&] () {R = semi_sort(make_slice(in_vals.data(),in_vals.data()+n));}, 
+       [&] () {semi_sort(int_keys);}, 
        [] () {});
   if (outFile != NULL) writeSequenceToFile(R, outFile);
 }
