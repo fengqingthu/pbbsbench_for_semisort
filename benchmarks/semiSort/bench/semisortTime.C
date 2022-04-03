@@ -37,7 +37,7 @@ void timeIntegerSort(sequence<sequence<char>> In, int rounds, int bits, char* ou
   sequence<T> R;
   time_loop(rounds, 1.0,
        [&] () {R.clear();},
-       [&] () {R = int_sort(make_slice(in_vals.data(),in_vals.data()+n), bits);},
+       [&] () {R = int_sort(make_slice(in_vals.data(),in_vals.data()+n), bits);}, // TODO: semisort here?
        [] () {});
   if (outFile != NULL) writeSequenceToFile(R, outFile);
 }

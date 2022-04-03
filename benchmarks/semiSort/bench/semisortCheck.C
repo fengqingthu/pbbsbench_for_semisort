@@ -38,18 +38,42 @@ void checkSort(sequence<sequence<char>> In,
   sequence<T> in_vals = parseElements<T>(In.cut(1, In.size()));
   sequence<T> out_vals = parseElements<T>(Out.cut(1, In.size()));
   size_t n = in_vals.size();
-  auto sorted_in = parlay::stable_sort(in_vals, less);
-  size_t error = n;
-  parlay::parallel_for (0, n, [&] (size_t i) {
-      if (out_vals[i] != sorted_in[i]) 
-	pbbs::write_min(&error,i,std::less<size_t>());
-  });
-  if (error < n) {
-    auto expected = parlay::to_chars(sorted_in[error]);
-    auto got = parlay::to_chars(out_vals[error]);
-    cout << "integer sort: check failed at location i=" << error
-	 << " expected " << expected << " got " << got << endl;
-    abort();
+  // Create frequency map to check output against
+  map<T, size_t> frequency;
+  for (uint i = 0; i < n; i++) {
+    if (frequency.count(in_vals[i]) == 0) {
+      frequency[in_vals[i]] = 0;
+    }
+    frequency[in_vals[i]]++;
+  }
+  // Check output against frequency table
+  assert(n == out_vals.size());
+  uint i = 0;
+  while (i < n) {
+    T key = out_vals[i];
+    if (frequency.count(key) == 0) {
+      cout << "semisort: checked failed at location i= " << parlay::to_chars(i) << ".\n"
+           << "Key found in out_vals and not input: " << parlay::to_chars(key) << endl;
+      abort();
+    }
+    size_t freq = frequency[key];
+    if (freq == 0) {
+      cout << "semisort: check failed at location i= " << parlay::to_chars(i) << ".\n"
+           << "Found the key '" << parlay::to_chars(key) << "' but was already found before" << endl;
+      abort();
+    }
+    size_t end_index = i + freq;
+    assert(end_index < n);
+    while (i < end_index) {
+      if (out_vals[i] != key) {
+        cout << "semisort: check failed at location i= " << parlay::to_chars(i) << ".\n"
+             << "Expected key: " << parlay::to_chars(key) << " \t but got: " << parlay::to_chars(out_vals[i]) << endl;
+        abort();
+      }
+      i++;
+    }
+    frequency[key] = 0;
+    i++;
   }
 }
 
