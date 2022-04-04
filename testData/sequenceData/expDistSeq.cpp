@@ -14,13 +14,14 @@ int main(int argc, char* argv[]) {
     size_t n = in.first;
     char* fname = in.second;
 
-    parlay::sequence<uint64_t> arr(n);
+    parlay::sequence<unsigned long> arr(n);
     std::default_random_engine generator;
     std::exponential_distribution<double> distribution(para);
 
-    parallel_for (size_t i = 0; i < n; i++) {
-        arr[i] = static_cast<uint64_t>(n * distribution(generator));
-    }
+    parallel_for(0, arr.size(), [&](size_t i) {
+        arr[i] = static_cast<unsigned long>(arr.size() * distribution(generator));
+    });
 
-    return writeSequenceToFile(arr, fname);
+
+    writeSeqToFile("unsigned long", arr, fname);
 }
