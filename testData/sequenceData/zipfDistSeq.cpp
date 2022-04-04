@@ -8,23 +8,23 @@ using parlay::parallel_for;
 int main(int argc, char* argv[]) {
 
     rand_val(1);
-    commandLine P(argc,argv,"[-r <range>] [-t {uint64_t}] <para> <size> <outfile>");
+    commandLine P(argc,argv,"[-r <range>] [-t {unsigned long}] <para> <size> <outfile>");
     pair<size_t,char*> in = P.sizeAndFileName();
     size_t para = std::atoi(P.getArgument(2));
-    // element type is fixed to uint64_t, which is not included in the elementTypeFromString function return value
+    // element type is fixed to unsigned long, which is not included in the elementTypeFromString function return value
     size_t n = in.first;
     char* fname = in.second;
 
-    parlay::sequence<uint64_t> arr(n);
+    parlay::sequence<unsigned long> arr(n);
     std::default_random_engine generator;
     std::exponential_distribution<double> distribution(para);
 
-    parallel_for (size_t i = 0; i < n; i++) {
+    parallel_for(0, arr.size(), [&](size_t i) {
         // according to section 5.1: "the i-th number in this range has a probability 1/(iM-) of being chosen..."
-        static_cast<uint64_t>(zipf(1.0, para));
-    }
+        arr[i] = static_cast<unsigned long>(zipf(1.0, para));
+    });
 
-    return writeSequenceToFile(arr, fname);
+    writeSeqToFile("unsigned long", arr, fname);
 }
 
 // Thanks to https://cse.usf.edu/~kchriste/tools/toolpage.html and Masoud Kazemi
