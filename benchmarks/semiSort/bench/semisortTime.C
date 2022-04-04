@@ -36,15 +36,20 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, int bits, char* outFi
   auto in_vals = parseElements<T>(In.cut(1, In.size()));
   size_t n = in_vals.size();
   parlay::sequence<record<string, T>> int_keys(n);
+  const float HASH_RANGE_K = constants::HASH_RANGE_K;
+  uint64_t k = pow(n, HASH_RANGE_K);
   for (int i = 0; i < n; i++) {
-    record<string, T> a = {"object_" + to_string(i), in_vals[i], 0};
+    record<string, T> a = {"object_" + to_string(i), in_vals[i], parlay::hash64(in_vals[i]) % k};
     int_keys[i] = a;
   }
   sequence<T> R;
   time_loop(rounds, 1.0,
-       [&] () {R.clear();},
-      //  [&] () {R = semi_sort(make_slice(in_vals.data(),in_vals.data()+n));}, 
-       [&] () {semi_sort(int_keys);}, 
+       [&] () {
+          parlay::parallel_for(0, n, [&](size_t i) {
+            R[i] = int_keys[i];
+            });
+       },
+       [&] () {semi_sort(R);}, 
        [] () {});
   if (outFile != NULL) writeSequenceToFile(R, outFile);
 }
