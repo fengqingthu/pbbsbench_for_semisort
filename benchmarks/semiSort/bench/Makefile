@@ -1,10 +1,17 @@
 include common/parallelDefs
+BNCHMRK = semiSort 
+
+CHECKFILES = $(BNCHMRK)Check.o
+
+COMMON = 
 
 INCLUDE = -Icommon -Ipbbslib
 
-isortCheck: semisortCheck.C 
-	$(CC) $(CFLAGS) $(LFLAGS) $(INCLUDE) -o semisortCheck semisortCheck.C
+%.o : %.C $(COMMON)
+	$(CC) $(CFLAGS) $(INCLUDE) -c $< -o $@
+
+$(BNCHMRK)Check : $(CHECKFILES)
+	$(CC) $(LFLAGS) -o $@ $(CHECKFILES)
 
 clean :
-	rm -f isortCheck
-
+	rm -f $(BNCHMRK)Check *.o *.pyc

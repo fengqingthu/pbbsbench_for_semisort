@@ -1,4 +1,4 @@
-#include "parallelSemiSort.h"
+#include "semiSort.h"
 
 using namespace std;
 using parlay::parallel_for;
