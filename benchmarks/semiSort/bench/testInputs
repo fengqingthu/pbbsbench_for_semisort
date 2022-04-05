@@ -12,7 +12,7 @@ tests = [
 
     # ---------- Note here the first parameter is sequence length and the second distribution parameter ---------- 
 
-    [1, "randomSeq_100M_int", "", ""], 
+    [1, "expDistSeq_100M_100", "", ""],
     [1, "expDistSeq_100M_1K", "", ""],
     [1, "expDistSeq_100M_10K", "", ""], 
     [1, "expDistSeq_100M_100K", "", ""], 
