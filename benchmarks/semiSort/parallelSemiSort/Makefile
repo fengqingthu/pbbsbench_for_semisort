@@ -1,7 +1,6 @@
 include common/parallelDefs
 
 BENCH = semiSort
-OBJS = semiSort.o
 
-include common/MakeBenchLink
+include common/MakeBench
 

@@ -32,26 +32,26 @@ using namespace std;
 using namespace benchIO;
 
 template <class T>
-void timeSemiSort(sequence<sequence<char>> In, int rounds, int bits, char* outFile) {
+void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
   auto in_vals = parseElements<T>(In.cut(1, In.size()));
   size_t n = in_vals.size();
   parlay::sequence<record<string, T>> int_keys(n);
   const float HASH_RANGE_K = constants::HASH_RANGE_K;
   uint64_t k = pow(n, HASH_RANGE_K);
   for (int i = 0; i < n; i++) {
-    record<string, T> a = {"object_" + to_string(i), in_vals[i], parlay::hash64(in_vals[i]) % k};
+    record<string, T> a = {"object_" + to_string(i), in_vals[i], static_cast<int>(parlay::hash64(in_vals[i]) % k)};
     int_keys[i] = a;
   }
-  sequence<T> R;
+  sequence<record<string, T>> R;
   time_loop(rounds, 1.0,
        [&] () {
           parlay::parallel_for(0, n, [&](size_t i) {
             R[i] = int_keys[i];
-            });
+          });
        },
-       [&] () {semi_sort(R);}, 
+       [&] () {semi_sort<string, T>(R);}, 
        [] () {});
-  if (outFile != NULL) writeSequenceToFile(R, outFile);
+  // if (outFile != NULL) writeSequenceToFile(R, outFile);
 }
 
 int main(int argc, char* argv[]) {
@@ -59,22 +59,11 @@ int main(int argc, char* argv[]) {
   char* iFile = P.getArgument(0);
   char* oFile = P.getOptionValue("-o");
   int rounds = P.getOptionIntValue("-r",1);
-  int bits = P.getOptionIntValue("-b",0);
+  int bits = P.getOptionIntValue("-b", 0);
 
   auto In = get_tokens(iFile);
   elementType in_type = elementTypeFromHeader(In[0]);
-  cout << "bits = " << bits << endl;
 
-  switch (in_type) {
-  case intType: 
-    timeSemiSort<uint>(In, rounds, bits, oFile);
-    break;
-  case intPairT: 
-    timeSemiSort<uintPair>(In, rounds, bits, oFile);
-    break;
-  default:
-    cout << "integer Sort: input file not of right type" << endl;
-    return(1);
-  }
+  timeSemiSort<long>(In, rounds, oFile);
 }
 
