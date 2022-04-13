@@ -5,28 +5,6 @@
 using namespace benchIO;
 using parlay::parallel_for;
 
-int main(int argc, char* argv[]) {
-
-    rand_val(1);
-    commandLine P(argc,argv,"[-r <range>] [-t {unsigned long}] <para> <size> <outfile>");
-    pair<size_t,char*> in = P.sizeAndFileName();
-    size_t para = std::atoi(P.getArgument(2));
-    // element type is fixed to unsigned long, which is not included in the elementTypeFromString function return value
-    size_t n = in.first;
-    char* fname = in.second;
-
-    parlay::sequence<unsigned long> arr(n);
-    std::default_random_engine generator;
-    std::exponential_distribution<double> distribution(para);
-
-    parallel_for(0, arr.size(), [&](size_t i) {
-        // according to section 5.1: "the i-th number in this range has a probability 1/(iM-) of being chosen..."
-        arr[i] = static_cast<unsigned long>(zipf(1.0, para));
-    });
-
-    writeSeqToFile("unsigned long", arr, fname);
-}
-
 // Thanks to https://cse.usf.edu/~kchriste/tools/toolpage.html and Masoud Kazemi
 //===========================================================================
 //----- Include files -------------------------------------------------------
@@ -40,11 +18,11 @@ int main(int argc, char* argv[]) {
 #define  TRUE           1       // Boolean true
 
 //----- Function prototypes -------------------------------------------------
-int      zipf(double alpha, int n);  // Returns a Zipf random variable
+long     zipf(double alpha, long n);  // Returns a Zipf random variable
 double   rand_val(int seed);         // Jain's RNG
 
 // Helper function for zipfian distribution
-int zipf(double alpha, int n)
+long zipf(double alpha, int n)
 {
   static int first = TRUE;      // Static first time flag
   static double c = 0;          // Normalization constant
@@ -132,4 +110,23 @@ double rand_val(int seed)
 
   // Return a random value between 0.0 and 1.0
   return((double) x / m);
+}
+
+int main(int argc, char* argv[]) {
+
+    rand_val(1);
+    commandLine P(argc,argv,"[-r <range>] [-t {long}] <para> <size> <outfile>");
+    pair<size_t,char*> in = P.sizeAndFileName();
+    size_t para = std::atoi(P.getArgument(2));
+    // element type is fixed to long, which is not included in the elementTypeFromString function return value
+    size_t n = in.first;
+    char* fname = in.second;
+
+    parlay::sequence<long> arr(n);
+
+    parallel_for(0, arr.size(), [&](size_t i) {
+        // according to section 5.1: "the i-th number in this range has a probability 1/(iM-) of being chosen..."
+        arr[i] = zipf(1.0, para);
+    });
+    writeSequenceToFile(arr,fname);
 }

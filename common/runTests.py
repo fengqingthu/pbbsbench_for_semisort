@@ -5,12 +5,12 @@ import os
 
 def onPprocessors(command,p) :
   if os.environ.has_key("OPENMP"):
-    return "OMP_NUM_THREADS="+'p'+" " + command
+    return "OMP_NUM_THREADS="+`p`+" " + command
     return command  
   elif os.environ.has_key("CILK"):
-    return "CILK_NWORKERS="+'p'+" " + command
+    return "CILK_NWORKERS="+`p`+" " + command
   else:
-    return "PARLAY_NUM_THREADS="+'p'+" " + command
+    return "PARLAY_NUM_THREADS="+`p`+" " + command
   
 def shellGetOutput(str) :
   process = subprocess.Popen(str,shell=True,stdout=subprocess.PIPE,
@@ -53,7 +53,7 @@ def runTest(runProgram, checkProgram, dataDir, test, rounds, procs, noOutput, ke
     if len(dataDir)>0:
       out = shellGetOutput("cd " + dataDir + "; make " + shortInputNames)
     longInputNames = " ".join(dataDir + "/" + name for name in inputFileNames)
-    runOptions = runOptions + " -r " + 'rounds'
+    runOptions = runOptions + " -r " + `rounds`
     if (noOutput == 0) :
       runOptions = runOptions + " -o " + outFile
     times = runSingle(runProgram, runOptions, longInputNames, procs)
@@ -91,7 +91,7 @@ def timeAll(name, runProgram, checkProgram, dataDir, tests, rounds, procs, noOut
                for test in tests]
     meanOfMeans = geomean([geomean(times) for (w,times) in results])
     meanOfMins = geomean([sorted(times)[0] for (w,times) in results])
-    print(name + " : " + 'procs' +" : " +
+    print(name + " : " + `procs` +" : " +
           "geomean of mins = " + stripFloat(meanOfMins) +
           ", geomean of geomeans = " + stripFloat(meanOfMeans))
     if (addToDatabase) :

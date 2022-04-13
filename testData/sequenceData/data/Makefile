@@ -33,24 +33,24 @@ $(CLASSIFYBZIP) :
 # the first argument is distribution parameter
 # the second as input size
 uniDistSeq_100M_% : ../uniDistSeq
-	../uniDistSeq -t uint64_t $(subst uniDistSeq_100M_,,$@) 100000000 $@
+	../uniDistSeq -t long $(subst uniDistSeq_100M_,,$@) 100000000 $@
 
 expDistSeq_100M_% : ../expDistSeq
-	../expDistSeq -t uint64_t $(subst expDistSeq_100M_,,$@) 100000000 $@
+	../expDistSeq -t long $(subst expDistSeq_100M_,,$@) 100000000 $@
 
-zipfDistSeq_100M_% : ../expDistSeq
-	../zipfDistSeq -t uint64_t $(subst zipfDistSeq_100M_,,$@) 100000000 $@
+zipfDistSeq_100M_% : ../zipfDistSeq
+	../zipfDistSeq -t long $(subst zipfDistSeq_100M_,,$@) 100000000 $@
 
 # below are for the small testinputs
 
 uniDistSeq_10M_% : ../uniDistSeq
-	../uniDistSeq -t uint64_t $(subst uniDistSeq_10M_,,$@) 10000000 $@
+	../uniDistSeq -t long $(subst uniDistSeq_10M_,,$@) 10000000 $@
 
 expDistSeq_10M_% : ../expDistSeq
-	../expDistSeq -t uint64_t $(subst expDistSeq_10M_,,$@) 10000000 $@
+	../expDistSeq -t long $(subst expDistSeq_10M_,,$@) 10000000 $@
 
-zipfDistSeq_10M_% : ../expDistSeq
-	../zipfDistSeq -t uint64_t $(subst zipfDistSeq_10M_,,$@) 10000000 $@
+zipfDistSeq_10M_% : ../zipfDistSeq
+	../zipfDistSeq -t long $(subst zipfDistSeq_10M_,,$@) 10000000 $@
 
 # -------------------------------------------
 

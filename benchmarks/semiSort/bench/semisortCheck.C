@@ -32,88 +32,88 @@
 using namespace std;
 using namespace benchIO;
 
-template <class T, class LESS>
-void checkSort(sequence<sequence<char>> In,
-	       sequence<sequence<char>> Out,
-	       LESS less) {
-  sequence<T> in_vals = parseElements<T>(In.cut(1, In.size()));
-  sequence<T> out_vals = parseElements<T>(Out.cut(1, In.size()));
-  size_t n = in_vals.size();
-  // Create frequency map to check output against
-  map<T, size_t> frequency;
-  for (uint i = 0; i < n; i++) {
-    if (frequency.count(in_vals[i]) == 0) {
-      frequency[in_vals[i]] = 0;
-    }
-    frequency[in_vals[i]]++;
-  }
-  // Check output against frequency table
-  assert(n == out_vals.size());
-  uint i = 0;
-  while (i < n) {
-    T key = out_vals[i];
-    if (frequency.count(key) == 0) {
-      cout << "semisort: checked failed at location i= " << parlay::to_chars(i) << ".\n"
-           << "Key found in out_vals and not input: " << parlay::to_chars(key) << endl;
-      abort();
-    }
-    size_t freq = frequency[key];
-    if (freq == 0) {
-      cout << "semisort: check failed at location i= " << parlay::to_chars(i) << ".\n"
-           << "Found the key '" << parlay::to_chars(key) << "' but was already found before" << endl;
-      abort();
-    }
-    size_t end_index = i + freq;
-    assert(end_index < n);
-    while (i < end_index) {
-      if (out_vals[i] != key) {
-        cout << "semisort: check failed at location i= " << parlay::to_chars(i) << ".\n"
-             << "Expected key: " << parlay::to_chars(key) << " \t but got: " << parlay::to_chars(out_vals[i]) << endl;
-        abort();
-      }
-      i++;
-    }
-    frequency[key] = 0;
-    i++;
-  }
-}
+// template <class T, class LESS>
+// void checkSort(sequence<sequence<char>> In,
+// 	       sequence<sequence<char>> Out,
+// 	       LESS less) {
+//   sequence<T> in_vals = parseElements<T>(In.cut(1, In.size()));
+//   sequence<T> out_vals = parseElements<T>(Out.cut(1, In.size()));
+//   size_t n = in_vals.size();
+//   // Create frequency map to check output against
+//   map<T, size_t> frequency;
+//   for (uint i = 0; i < n; i++) {
+//     if (frequency.count(in_vals[i]) == 0) {
+//       frequency[in_vals[i]] = 0;
+//     }
+//     frequency[in_vals[i]]++;
+//   }
+//   // Check output against frequency table
+//   assert(n == out_vals.size());
+//   uint i = 0;
+//   while (i < n) {
+//     T key = out_vals[i];
+//     if (frequency.count(key) == 0) {
+//       cout << "semisort: checked failed at location i= " << parlay::to_chars(i) << ".\n"
+//            << "Key found in out_vals and not input: " << parlay::to_chars(key) << endl;
+//       abort();
+//     }
+//     size_t freq = frequency[key];
+//     if (freq == 0) {
+//       cout << "semisort: check failed at location i= " << parlay::to_chars(i) << ".\n"
+//            << "Found the key '" << parlay::to_chars(key) << "' but was already found before" << endl;
+//       abort();
+//     }
+//     size_t end_index = i + freq;
+//     assert(end_index < n);
+//     while (i < end_index) {
+//       if (out_vals[i] != key) {
+//         cout << "semisort: check failed at location i= " << parlay::to_chars(i) << ".\n"
+//              << "Expected key: " << parlay::to_chars(key) << " \t but got: " << parlay::to_chars(out_vals[i]) << endl;
+//         abort();
+//       }
+//       i++;
+//     }
+//     frequency[key] = 0;
+//     i++;
+//   }
+// }
 
 int main(int argc, char* argv[]) {
-  commandLine P(argc,argv,"<inFile> <outFile>");
-  pair<char*,char*> fnames = P.IOFileNames();
-  char* infile = fnames.first;
-  char* outfile = fnames.second;
+  // commandLine P(argc,argv,"<inFile> <outFile>");
+  // pair<char*,char*> fnames = P.IOFileNames();
+  // char* infile = fnames.first;
+  // char* outfile = fnames.second;
   
-  auto In = get_tokens(infile);
-  elementType in_type = elementTypeFromHeader(In[0]);
-  size_t in_n = In.size() - 1;
+  // auto In = get_tokens(infile);
+  // elementType in_type = elementTypeFromHeader(In[0]);
+  // size_t in_n = In.size() - 1;
 
-  auto Out = get_tokens(outfile);
-  elementType out_type = elementTypeFromHeader(Out[0]);
-  size_t out_n = In.size() - 1;
+  // auto Out = get_tokens(outfile);
+  // elementType out_type = elementTypeFromHeader(Out[0]);
+  // size_t out_n = In.size() - 1;
 
-  if (in_type != out_type) {
-    cout << argv[0] << ": in and out types don't match" << endl;
-    return(1);
-  }
+  // if (in_type != out_type) {
+  //   cout << argv[0] << ": in and out types don't match" << endl;
+  //   return(1);
+  // }
   
-  if (in_n != out_n) {
-    cout << argv[0] << ": in and out lengths don't match" << endl;
-    return(1);
-  }
+  // if (in_n != out_n) {
+  //   cout << argv[0] << ": in and out lengths don't match" << endl;
+  //   return(1);
+  // }
 
-  auto less = [&] (uint a, uint b) {return a < b;};
-  auto lessp = [&] (uintPair a, uintPair b) {return a.first < b.first;};
+  // auto less = [&] (uint a, uint b) {return a < b;};
+  // auto lessp = [&] (uintPair a, uintPair b) {return a.first < b.first;};
   
-  switch (in_type) {
-  case intType: 
-    checkSort<uint>(In, Out, less);
-    break; 
-  case intPairT: 
-    checkSort<uintPair>(In, Out, lessp);
-    break; 
-  default:
-    cout << argv[0] << ": input files not of right type" << endl;
-    return(1);
-  }
+  // switch (in_type) {
+  // case intType: 
+  //   checkSort<uint>(In, Out, less);
+  //   break; 
+  // case intPairT: 
+  //   checkSort<uintPair>(In, Out, lessp);
+  //   break; 
+  // default:
+  //   cout << argv[0] << ": input files not of right type" << endl;
+  //   return(1);
+  // }
 }
