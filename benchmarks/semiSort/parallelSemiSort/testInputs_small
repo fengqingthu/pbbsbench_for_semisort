@@ -1,0 +1,16 @@
+#!/usr/bin/python 
+ 
+bnchmrk="semiSort"
+benchmark="Semi Sort"
+checkProgram="../bench/semiSortCheck" 
+dataDir = "../sequenceData/data"
+
+tests = [
+    [1, "randomSeq_10_int", "-b 24", ""], 
+    [1, "exptSeq_10_int", "-b 24", ""], 
+    ] 
+
+import sys
+sys.path.insert(0, 'common')
+import runTests
+runTests.timeAllArgs(bnchmrk, benchmark, checkProgram, dataDir, tests)

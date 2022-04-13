@@ -9,6 +9,9 @@ import sys
 os.system("echo HOSTNAME: `hostname`")
 
 tests = [
+    ["semiSort/parallelSemiSort",True,0],
+    ["semiSort/serialSemiSort",False,0],
+
     ["integerSort/parallelRadixSort",True,0],
     ["integerSort/serialRadixSort",False,0],
 
