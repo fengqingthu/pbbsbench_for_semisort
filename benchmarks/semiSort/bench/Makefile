@@ -1,5 +1,5 @@
 include common/parallelDefs
-BNCHMRK = semiSort 
+BNCHMRK = semiSort
 
 CHECKFILES = $(BNCHMRK)Check.o
 

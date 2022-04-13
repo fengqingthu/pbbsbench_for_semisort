@@ -29,6 +29,7 @@
 #include "common/sequenceIO.h"
 #include "common/atomics.h"
 #include "common/parse_command_line.h"
+#include "../parallelSemiSort/semiSort.h"
 using namespace std;
 using namespace benchIO;
 
@@ -36,20 +37,28 @@ template <class T, class LESS>
 void checkSort(sequence<sequence<char>> In,
 	       sequence<sequence<char>> Out,
 	       LESS less) {
-  sequence<T> in_vals = parseElements<T>(In.cut(1, In.size()));
-  sequence<T> out_vals = parseElements<T>(Out.cut(1, In.size()));
+  auto in_vals = parseElements<T>(In.cut(1, In.size()));
+  auto out_vals = parseElements<T>(Out.cut(1, Out.size()));
+
   size_t n = in_vals.size();
+  const float HASH_RANGE_K = constants::HASH_RANGE_K;
+  uint64_t k = pow(n, HASH_RANGE_K);
+
   // Create frequency map to check output against
   map<T, size_t> frequency;
-  for (uint i = 0; i < n; i++) {
+  for (int i = 0; i < n; i++) {
+    // hashed input sequence here
+    in_vals[i] = static_cast<long>(parlay::hash64(in_vals[i]) % k);
     if (frequency.count(in_vals[i]) == 0) {
       frequency[in_vals[i]] = 0;
     }
     frequency[in_vals[i]]++;
   }
+  // for manual investigation
+  writeSequenceToFile(in_vals, "/tmp/in_vals");
   // Check output against frequency table
   assert(n == out_vals.size());
-  uint i = 0;
+  int i = 0;
   while (i < n) {
     T key = out_vals[i];
     if (frequency.count(key) == 0) {
@@ -63,7 +72,7 @@ void checkSort(sequence<sequence<char>> In,
            << "Found the key '" << parlay::to_chars(key) << "' but was already found before" << endl;
       abort();
     }
-    size_t end_index = i + freq;
+    size_t end_index = i + freq - 1;
     assert(end_index < n);
     while (i < end_index) {
       if (out_vals[i] != key) {
@@ -108,9 +117,6 @@ int main(int argc, char* argv[]) {
   switch (in_type) {
   case intType: 
     checkSort<uint>(In, Out, less);
-    break; 
-  case intPairT: 
-    checkSort<uintPair>(In, Out, lessp);
     break; 
   default:
     cout << argv[0] << ": input files not of right type" << endl;

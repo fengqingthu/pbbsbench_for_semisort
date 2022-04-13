@@ -17,7 +17,7 @@ struct record
 {
   A obj;
   B key;
-  int hashed_key;
+  long hashed_key;
 
   inline bool isEmpty() {
     return hashed_key == 0;
@@ -312,7 +312,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
             while (true) {
                 record<Object, Key> c = buckets[insert_index];
                 if (c.isEmpty()) {
-                    if (bucket_cas(&buckets[insert_index].hashed_key, 0, arr[i].hashed_key)) {
+                    if (bucket_cas(&buckets[insert_index].hashed_key, 0L, arr[i].hashed_key)) {
                         buckets[insert_index] = arr[i];
                         break;
                     }
@@ -340,7 +340,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
             while (true) {
                 record<Object, Key> c = buckets[insert_index];
                 if (c.isEmpty()) {
-                    if (bucket_cas(&buckets[insert_index].hashed_key, 0, arr[i].hashed_key)) {
+                    if (bucket_cas(&buckets[insert_index].hashed_key, 0L, arr[i].hashed_key)) {
                         buckets[insert_index] = arr[i];
                         break;
                     }

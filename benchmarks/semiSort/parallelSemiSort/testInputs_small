@@ -11,8 +11,8 @@ tests = [
     # Benchmarks according to Figure 1
 
     # ---------- Note here the first parameter is sequence length and the second distribution parameter ----------
-    [1, "randomSeq_10000_int", "-b 24", ""], 
-    [1, "expDistSeq_10M_100", "", ""],
+    [1, "randomSeq_1000_int", "", ""],
+    # [1, "expDistSeq_10M_100", "", ""],
     # [1, "expDistSeq_10M_1K", "", ""],
     # [1, "expDistSeq_10M_10K", "", ""], 
     # [1, "expDistSeq_10M_100K", "", ""], 
