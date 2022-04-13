@@ -10,25 +10,25 @@ tests = [
 
     # Benchmarks according to Figure 1
 
-    # ---------- Note here the first parameter is sequence length and the second distribution parameter ---------- 
-        
+    # ---------- Note here the first parameter is sequence length and the second distribution parameter ----------
+    [1, "randomSeq_10000_int", "-b 24", ""], 
     [1, "expDistSeq_10M_100", "", ""],
-    [1, "expDistSeq_10M_1K", "", ""],
-    [1, "expDistSeq_10M_10K", "", ""], 
-    [1, "expDistSeq_10M_100K", "", ""], 
-    [1, "expDistSeq_10M_300K", "", ""], 
-    [1, "expDistSeq_10M_1M", "", ""],
-    [1, "uniDistSeq_10M_10", "", ""],
-    [1, "uniDistSeq_10M_100K", "", ""], 
-    [1, "uniDistSeq_10M_320K", "", ""],
-    [1, "uniDistSeq_10M_500K", "", ""],
-    [1, "uniDistSeq_10M_1M", "", ""],
-    [1, "uniDistSeq_10M_100M", "", ""], 
-    [1, "zipfDistSeq_10M_10K", "", ""],
-    [1, "zipfDistSeq_10M_100K", "", ""], 
-    [1, "zipfDistSeq_10M_1M", "", ""], 
-    [1, "zipfDistSeq_10M_10M", "", ""],
-    [1, "zipfDistSeq_10M_100M", "", ""],
+    # [1, "expDistSeq_10M_1K", "", ""],
+    # [1, "expDistSeq_10M_10K", "", ""], 
+    # [1, "expDistSeq_10M_100K", "", ""], 
+    # [1, "expDistSeq_10M_300K", "", ""], 
+    # [1, "expDistSeq_10M_1M", "", ""],
+    # [1, "uniDistSeq_10M_10", "", ""],
+    # [1, "uniDistSeq_10M_100K", "", ""], 
+    # [1, "uniDistSeq_10M_320K", "", ""],
+    # [1, "uniDistSeq_10M_500K", "", ""],
+    # [1, "uniDistSeq_10M_1M", "", ""],
+    # [1, "uniDistSeq_10M_100M", "", ""], 
+    # [1, "zipfDistSeq_10M_10K", "", ""],
+    # [1, "zipfDistSeq_10M_100K", "", ""], 
+    # [1, "zipfDistSeq_10M_1M", "", ""], 
+    # [1, "zipfDistSeq_10M_10M", "", ""],
+    # [1, "zipfDistSeq_10M_100M", "", ""],
     ] 
 
 import sys

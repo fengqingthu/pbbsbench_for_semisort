@@ -1,4 +1,4 @@
-GENERATORS = ../randomSeq ../equalSeq ../almostEqualSeq ../almostSortedSeq ../exptSeq ../trigramSeq ../addDataSeq ../trigramString
+GENERATORS = ../randomSeq ../equalSeq ../almostEqualSeq ../almostSortedSeq ../exptSeq ../trigramSeq ../addDataSeq ../trigramString ../uniDistSeq ../expDistSeq ../zipfDistSeq
 
 STRINGFILES = wikipedia250M.txt wikisamp.xml chr22.dna etext99 
 STRINGFILES_LONG = wikisamp.xml chr22.dna etext99 HG18 howto jdk13c proteins rctail96 rfc sprot34 w3c2
@@ -27,6 +27,33 @@ $(CLASSIFYFILES) : $(CLASSIFYBZIP)
 
 $(CLASSIFYBZIP) :
 	cp ../../data/$@ .
+
+# ---------- Modified for semisort ----------
+# Note here in the command line
+# the first argument is distribution parameter
+# the second as input size
+uniDistSeq_100M_% : ../uniDistSeq
+	../uniDistSeq -t int $(subst uniDistSeq_100M_,,$@) 100000000 $@
+
+expDistSeq_100M_% : ../expDistSeq
+	../expDistSeq -t int $(subst expDistSeq_100M_,,$@) 100000000 $@
+
+zipfDistSeq_100M_% : ../zipfDistSeq
+	../zipfDistSeq -t int $(subst zipfDistSeq_100M_,,$@) 100000000 $@
+
+# below are for the small testinputs
+
+uniDistSeq_10M_% : ../uniDistSeq
+	../uniDistSeq -t int $(subst uniDistSeq_10M_,,$@) 10000000 $@
+
+expDistSeq_10M_% : ../expDistSeq
+	../expDistSeq -t int $(subst expDistSeq_10M_,,$@) 10000000 $@
+
+zipfDistSeq_10M_% : ../zipfDistSeq
+	../zipfDistSeq -t int $(subst zipfDistSeq_10M_,,$@) 10000000 $@
+
+# -------------------------------------------
+
 
 randomSeq_%_pair_int :  ../addDataSeq
 	make -s $(subst _pair_int,,$@)

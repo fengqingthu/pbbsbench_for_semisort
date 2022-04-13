@@ -51,7 +51,12 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
        },
        [&] () {semi_sort<string, T>(R);}, 
        [] () {});
-  // if (outFile != NULL) writeSequenceToFile(R, outFile);
+  // should transfer R to sequence<int>
+  sequence<int> out(n);
+  parlay::parallel_for(0, n, [&](size_t i) {
+            out[i] = R[i].key;
+          });
+  if (outFile != NULL) writeSequenceToFile(out, outFile);
 }
 
 int main(int argc, char* argv[]) {
@@ -59,10 +64,10 @@ int main(int argc, char* argv[]) {
   char* iFile = P.getArgument(0);
   char* oFile = P.getOptionValue("-o");
   int rounds = P.getOptionIntValue("-r",1);
-  int bits = P.getOptionIntValue("-b", 0);
+  // int bits = P.getOptionIntValue("-b", 0);
 
   auto In = get_tokens(iFile);
-  elementType in_type = elementTypeFromHeader(In[0]);
+  // elementType in_type = elementTypeFromHeader(In[0]);
 
   timeSemiSort<long>(In, rounds, oFile);
 }
