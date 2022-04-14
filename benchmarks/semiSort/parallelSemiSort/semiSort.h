@@ -387,7 +387,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
   uint32_t num_partitions_step8 = min((uint32_t)1000, current_bucket_offset);
   parlay::sequence<int> interval_length(num_partitions_step8);
   parlay::sequence<int> interval_prefix_sum(num_partitions_step8);
-  parallel_for(0, num_partitions_step8 + 1, [&](size_t partition) { // leq or lt?
+  parallel_for(0, num_partitions_step8, [&](size_t partition) { // leq or lt?
     uint32_t chunk_length = ceil((double)current_bucket_offset / num_partitions_step8);
     uint32_t start_range = chunk_length * partition;
     uint32_t cur_chunk_pointer = 0;
