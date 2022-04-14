@@ -413,7 +413,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 
   for (uint32_t i = 1; i < num_partitions_step8; i++)
   {
-    interval_prefix_sum[i] = interval_length[i] + interval_prefix_sum[i - 1];
+    interval_prefix_sum[i] = interval_length[i-1] + interval_prefix_sum[i - 1];
   }
 
 #ifdef DEBUG
