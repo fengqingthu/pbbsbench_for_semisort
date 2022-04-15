@@ -12,8 +12,8 @@ tests = [
 
     # ---------- Note here the first parameter is sequence length and the second distribution parameter ----------
 
-    # 100 works fine but 1000 will fail the check
-    [1, "randomSeq_100_int", "", ""],
+    # 100000 fails the check due to no output file be written
+    [1, "randomSeq_100000_int", "", ""],
     # [1, "expDistSeq_10M_100", "", ""],
     # [1, "expDistSeq_10M_1K", "", ""],
     # [1, "expDistSeq_10M_10K", "", ""], 
