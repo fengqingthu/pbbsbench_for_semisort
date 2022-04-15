@@ -295,7 +295,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 #endif
 
   // A' in the paper
-  parlay::sequence<record<Object, Key> > buckets(current_bucket_offset);
+  parlay::sequence<record<Object, Key> > buckets(current_bucket_offset + n);
 
   // scatter heavy keys
   uint32_t num_partitions = (int)((double)n / logn);
@@ -384,11 +384,11 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 #endif
 
   // step 8
-  uint32_t num_partitions_step8 = min((uint32_t)1000, current_bucket_offset);
+  uint32_t num_partitions_step8 = min((uint32_t)1000, buckets.size());
   parlay::sequence<int> interval_length(num_partitions_step8);
   parlay::sequence<int> interval_prefix_sum(num_partitions_step8);
   parallel_for(0, num_partitions_step8, [&](size_t partition) { // leq or lt?
-    uint32_t chunk_length = ceil((double)current_bucket_offset / num_partitions_step8);
+    uint32_t chunk_length = ceil((double)buckets.size() / num_partitions_step8);
     uint32_t start_range = chunk_length * partition;
     uint32_t cur_chunk_pointer = 0;
 
@@ -427,7 +427,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 
   parallel_for(0, num_partitions_step8, [&](size_t partition)
                {
-        uint32_t chunk_length = ceil((double)current_bucket_offset / num_partitions_step8);
+        uint32_t chunk_length = ceil((double)buckets.size() / num_partitions_step8);
         uint32_t start_range = interval_prefix_sum[partition];
         for(uint32_t i = 0; i < interval_length[partition]; i++) {
             arr[start_range + i] = buckets[chunk_length * partition + i];
