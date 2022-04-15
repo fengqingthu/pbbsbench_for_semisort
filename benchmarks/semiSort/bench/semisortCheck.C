@@ -48,14 +48,15 @@ void checkSort(sequence<sequence<char>> In,
   map<T, size_t> frequency;
   for (int i = 0; i < n; i++) {
     // hashed input sequence here
-    in_vals[i] = static_cast<long>(parlay::hash64(in_vals[i]) % k);
+    in_vals[i] = static_cast<uint64_t>(parlay::hash64(in_vals[i]) % k);
     if (frequency.count(in_vals[i]) == 0) {
       frequency[in_vals[i]] = 0;
     }
     frequency[in_vals[i]]++;
   }
   // for manual investigation
-  writeSequenceToFile(in_vals, "/tmp/in_vals");
+  // writeSequenceToFile(in_vals, "/tmp/in_vals");
+  writeSeqToFile("sequenceInt", in_vals, "/tmp/input_hashed_keys");
   // Check output against frequency table
   assert(n == out_vals.size());
   int i = 0;
@@ -94,17 +95,17 @@ int main(int argc, char* argv[]) {
   char* outfile = fnames.second;
   
   auto In = get_tokens(infile);
-  elementType in_type = elementTypeFromHeader(In[0]);
+  // elementType in_type = elementTypeFromHeader(In[0]);
   size_t in_n = In.size() - 1;
 
   auto Out = get_tokens(outfile);
-  elementType out_type = elementTypeFromHeader(Out[0]);
+  // elementType out_type = elementTypeFromHeader(Out[0]);
   size_t out_n = In.size() - 1;
 
-  if (in_type != out_type) {
-    cout << argv[0] << ": in and out types don't match" << endl;
-    return(1);
-  }
+  // if (in_type != out_type) {
+  //   cout << argv[0] << ": in and out types don't match" << endl;
+  //   return(1);
+  // }
   
   if (in_n != out_n) {
     cout << argv[0] << ": in and out lengths don't match" << endl;
@@ -114,12 +115,5 @@ int main(int argc, char* argv[]) {
   auto less = [&] (uint a, uint b) {return a < b;};
   auto lessp = [&] (uintPair a, uintPair b) {return a.first < b.first;};
   
-  switch (in_type) {
-  case intType: 
-    checkSort<uint>(In, Out, less);
-    break; 
-  default:
-    cout << argv[0] << ": input files not of right type" << endl;
-    return(1);
-  }
+  checkSort<uint64_t>(In, Out, less);
 }

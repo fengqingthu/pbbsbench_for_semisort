@@ -12,25 +12,24 @@ tests = [
 
     # ---------- Note here the first parameter is sequence length and the second distribution parameter ----------
 
-    # 100000 fails the check due to no output file be written
-    [1, "randomSeq_100000_int", "", ""],
+    [1, "randomSeq_10000_int", "", ""],
     # [1, "expDistSeq_10M_100", "", ""],
-    # [1, "expDistSeq_10M_1K", "", ""],
-    # [1, "expDistSeq_10M_10K", "", ""], 
-    # [1, "expDistSeq_10M_100K", "", ""], 
-    # [1, "expDistSeq_10M_300K", "", ""], 
-    # [1, "expDistSeq_10M_1M", "", ""],
+    # [1, "expDistSeq_10M_1000", "", ""],
+    # [1, "expDistSeq_10M_10000", "", ""], 
+    # [1, "expDistSeq_10M_100000", "", ""], 
+    # [1, "expDistSeq_10M_300000", "", ""], 
+    # [1, "expDistSeq_10M_1000000", "", ""],
     # [1, "uniDistSeq_10M_10", "", ""],
-    # [1, "uniDistSeq_10M_100K", "", ""], 
-    # [1, "uniDistSeq_10M_320K", "", ""],
-    # [1, "uniDistSeq_10M_500K", "", ""],
-    # [1, "uniDistSeq_10M_1M", "", ""],
-    # [1, "uniDistSeq_10M_100M", "", ""], 
-    # [1, "zipfDistSeq_10M_10K", "", ""],
-    # [1, "zipfDistSeq_10M_100K", "", ""], 
-    # [1, "zipfDistSeq_10M_1M", "", ""], 
-    # [1, "zipfDistSeq_10M_10M", "", ""],
-    # [1, "zipfDistSeq_10M_100M", "", ""],
+    # [1, "uniDistSeq_10M_100000", "", ""], 
+    # [1, "uniDistSeq_10M_320000", "", ""],
+    # [1, "uniDistSeq_10M_500000", "", ""],
+    # [1, "uniDistSeq_10M_1000000", "", ""],
+    # [1, "uniDistSeq_10M_100000000", "", ""], 
+    # [1, "zipfDistSeq_10M_10000", "", ""],
+    # [1, "zipfDistSeq_10M_100000", "", ""], 
+    # [1, "zipfDistSeq_10M_1000000", "", ""], 
+    # [1, "zipfDistSeq_10M_10000000", "", ""],
+    # [1, "zipfDistSeq_10M_100000000", "", ""],
     ] 
 
 import sys

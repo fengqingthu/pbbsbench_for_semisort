@@ -118,6 +118,17 @@ namespace benchIO {
     return tabulate(S.size(), [&] (long i) -> double {return read_double(S[i]);});
   }
 
+  // ------------ Modification for semisort, supporting uint64 ----------------------
+  uint64_t read_uint64(charSeq const &S) {
+    return chars_to_ulong_long(S);}
+
+  template<typename T, typename Range>
+  inline typename std::enable_if<std::is_same<T, uint64_t>::value, sequence<uint64_t>>::type
+  parseElements(Range const &S) {
+    return tabulate(S.size(), [&] (long i) -> uint64_t {return (uint64_t) read_uint64(S[i]);});
+  }
+  // ---------------------------------------------------------------------------------
+  
   template<typename T, typename Range>
   inline typename std::enable_if<std::is_same<T, int>::value, sequence<int>>::type
   parseElements(Range const &S) {

@@ -39,7 +39,7 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
   const float HASH_RANGE_K = constants::HASH_RANGE_K;
   uint64_t k = pow(n, HASH_RANGE_K);
   for (int i = 0; i < n; i++) {
-    record<string, T> a = {"object_" + to_string(i), in_vals[i], static_cast<long>(parlay::hash64(in_vals[i]) % k)};
+    record<string, T> a = {"object_" + to_string(i), in_vals[i], static_cast<uint64_t>(parlay::hash64(in_vals[i]) % k)};
     int_keys[i] = a;
   }
   sequence<record<string, T>> R(n);
@@ -52,11 +52,12 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
        [&] () {semi_sort<string, T>(R);}, 
        [] () {});
   // should transfer R to sequence<int>
-  sequence<long> out(n);
+  sequence<uint64_t> out(n);
   parlay::parallel_for(0, n, [&](size_t i) {
             out[i] = R[i].hashed_key;
           });
-  if (outFile != NULL) writeSequenceToFile(out, outFile);
+  // if (outFile != NULL) writeSequenceToFile(out, outFile);
+  if (outFile != NULL) writeSeqToFile("sequenceInt", out, outFile);
 }
 
 int main(int argc, char* argv[]) {
