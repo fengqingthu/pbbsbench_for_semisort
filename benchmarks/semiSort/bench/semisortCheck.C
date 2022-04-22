@@ -42,13 +42,13 @@ void checkSort(sequence<sequence<char>> In,
 
   size_t n = in_vals.size();
   const float HASH_RANGE_K = constants::HASH_RANGE_K;
-  uint64_t k = pow(n, HASH_RANGE_K);
+  long k = pow(n, HASH_RANGE_K);
 
   // Create frequency map to check output against
   map<T, size_t> frequency;
   for (int i = 0; i < n; i++) {
     // hashed input sequence here
-    in_vals[i] = static_cast<uint64_t>(parlay::hash64(in_vals[i]) % k);
+    in_vals[i] = static_cast<long>(parlay::hash64(in_vals[i]) % k);
     if (frequency.count(in_vals[i]) == 0) {
       frequency[in_vals[i]] = 0;
     }
@@ -115,5 +115,5 @@ int main(int argc, char* argv[]) {
   auto less = [&] (uint a, uint b) {return a < b;};
   auto lessp = [&] (uintPair a, uintPair b) {return a.first < b.first;};
   
-  checkSort<uint64_t>(In, Out, less);
+  checkSort<long>(In, Out, less);
 }

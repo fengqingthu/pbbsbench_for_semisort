@@ -35,29 +35,28 @@ template <class T>
 void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
   auto in_vals = parseElements<T>(In.cut(1, In.size()));
   size_t n = in_vals.size();
-  parlay::sequence<record<string, T>> int_keys(n);
+  parlay::sequence<record<string, T>> records(n);
   const float HASH_RANGE_K = constants::HASH_RANGE_K;
-  uint64_t k = pow(n, HASH_RANGE_K);
+  long k = pow(n, HASH_RANGE_K);
   for (int i = 0; i < n; i++) {
-    record<string, T> a = {"object_" + to_string(i), in_vals[i], static_cast<uint64_t>(parlay::hash64(in_vals[i]) % k)};
-    int_keys[i] = a;
+    record<string, T> a = {"object_" + to_string(i), in_vals[i], static_cast<long>(parlay::hash64(in_vals[i]) % k)};
+    records[i] = a;
   }
   sequence<record<string, T>> R(n);
   time_loop(rounds, 1.0,
        [&] () {
           parlay::parallel_for(0, n, [&](size_t i) {
-            R[i] = int_keys[i];
+            R[i] = records[i];
           });
        },
        [&] () {semi_sort<string, T>(R);}, 
        [] () {});
-  // should transfer R to sequence<int>
-  sequence<uint64_t> out(n);
+  // should transfer output to sequence<long>
+  sequence<long> out(n);
   parlay::parallel_for(0, n, [&](size_t i) {
             out[i] = R[i].hashed_key;
           });
-  // if (outFile != NULL) writeSequenceToFile(out, outFile);
-  if (outFile != NULL) writeSeqToFile("sequenceInt", out, outFile);
+  if (outFile != NULL) writeSequenceToFile(out, outFile);
 }
 
 int main(int argc, char* argv[]) {
@@ -70,6 +69,6 @@ int main(int argc, char* argv[]) {
   auto In = get_tokens(iFile);
   // elementType in_type = elementTypeFromHeader(In[0]);
 
-  timeSemiSort<long>(In, rounds, oFile);
+  timeSemiSort<int>(In, rounds, oFile);
 }
 
