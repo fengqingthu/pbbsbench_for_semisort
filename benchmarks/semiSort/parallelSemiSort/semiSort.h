@@ -145,7 +145,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
   double logn = log2((double)n);
   double p = SAMPLE_PROBABILITY_CONSTANT / logn; // this is theta(1 / log n) so we can autotune later
 
-  uint32_t num_samples = ceil(1 / p);
+  uint32_t num_samples = ceil(n * p);
   assert(num_samples != 0);
 
 #ifdef DEBUG
@@ -174,7 +174,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
   // Step 3 sort samples so we can more easily determine offsets
   auto comp = [&](record<Object, Key> x)
   { return x.hashed_key; };
-  parlay::internal::integer_sort(parlay::make_slice(sample.begin(), sample.end()), comp, sizeof(uint64_t));
+  sample = parlay::internal::integer_sort(parlay::make_slice(sample.begin(), sample.end()), comp, sizeof(uint64_t));
 
   // Step 4
   uint32_t gamma = DELTA_THRESHOLD * log(n);
@@ -238,7 +238,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 #endif
 
   // hash table T
-  parlay::hashtable<hash_buckets> hash_table(n, hash_buckets());
+  parlay::hashtable<hash_buckets> hash_table(2*n, hash_buckets());
 
   // calculate the number of light buckets we want
   uint32_t num_buckets = LIGHT_KEY_BUCKET_CONSTANT * ((double)n / logn / logn + 1);
@@ -394,6 +394,8 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 
     for (uint32_t i = 0; i < chunk_length; i++)
     {
+      if (start_range + i >= buckets.size())
+        break;
       if (buckets[start_range + i].hashed_key != 0)
       {
         buckets[start_range + cur_chunk_pointer] = buckets[start_range + i];
