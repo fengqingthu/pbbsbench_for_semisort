@@ -19,15 +19,18 @@ struct record
   B key;
   uint64_t hashed_key;
 
-  inline bool isEmpty() {
+  inline bool isEmpty()
+  {
     return hashed_key == 0;
   }
 
-  inline bool operator!=(record a) {
+  inline bool operator!=(record a)
+  {
     return a.hashed_key != hashed_key || a.obj != obj || a.key != key;
   }
 
-  inline bool operator==(record a) {
+  inline bool operator==(record a)
+  {
     return a.hashed_key == hashed_key && a.obj == obj && a.key == key;
   }
 };
@@ -39,7 +42,8 @@ struct Bucket
   unsigned int size : 31;
   bool isHeavy;
 
-  inline bool operator!=(Bucket a) {
+  inline bool operator!=(Bucket a)
+  {
     return a.bucket_id != bucket_id || a.offset != offset || a.size != size || a.isHeavy != isHeavy;
   }
 
@@ -62,7 +66,8 @@ struct hash_buckets
   bool cas(eType *p, eType o, eType n)
   {
     auto pb = reinterpret_cast<std::atomic<unsigned long long> *>(&(p->bucket_id));
-    if (std::atomic_compare_exchange_strong_explicit(pb, &(o.bucket_id), n.bucket_id, std::memory_order_relaxed, std::memory_order_relaxed)) {
+    if (std::atomic_compare_exchange_strong_explicit(pb, &(o.bucket_id), n.bucket_id, std::memory_order_relaxed, std::memory_order_relaxed))
+    {
       *p = n;
       return true;
     }
@@ -70,14 +75,15 @@ struct hash_buckets
   }
 };
 
-unsigned int size_func(unsigned int num_records, double p, unsigned int n, double c) {
-  double lnn = (double)log((double) n);
+unsigned int size_func(unsigned int num_records, double p, unsigned int n, double c)
+{
+  double lnn = (double)log((double)n);
   double clnn = c * lnn;
 
   double fs = (num_records + clnn + sqrt(clnn * clnn + 2 * num_records * c * clnn)) / p;
   double array_size = 1.1 * fs;
 
-  return (unsigned int) pow(2, ceil(log(array_size) / log(2)));
+  return (unsigned int)pow(2, ceil(log(array_size) / log(2)));
 }
 
 template <class eType>
@@ -88,14 +94,16 @@ bool bucket_cas(eType *p, eType o, eType n)
 }
 
 // round n down to nearest multiple of m
-uint64_t round_down(uint64_t n, uint64_t m) {
+uint64_t round_down(uint64_t n, uint64_t m)
+{
   return n >= 0 ? (n / m) * m : ((n - m + 1) / m) * m;
 }
 
 // ----------------------- DECLARATION -------------------------
-namespace constants {
+namespace constants
+{
   const float HASH_RANGE_K = 2.25;
-  const float SAMPLE_PROBABILITY_CONSTANT = 5;
+  const float SAMPLE_PROBABILITY_CONSTANT = 3;
   const float DELTA_THRESHOLD = 1;
   const float F_C = 1.25;
   const float LIGHT_KEY_BUCKET_CONSTANT = 2;
@@ -112,7 +120,7 @@ const float F_C = constants::F_C;
 const float LIGHT_KEY_BUCKET_CONSTANT = constants::LIGHT_KEY_BUCKET_CONSTANT;
 
 template <class Object, class Key>
-void semi_sort_with_hash(parlay::sequence<record<Object, Key> > &arr)
+void semi_sort_with_hash(parlay::sequence<record<Object, Key>> &arr)
 {
   hash<Key> hash_fn;
   uint64_t k = pow(arr.size(), HASH_RANGE_K);
@@ -133,19 +141,17 @@ void semi_sort_with_hash(parlay::sequence<record<Object, Key> > &arr)
   semi_sort(arr);
 }
 
-
-
 template <class Object, class Key>
-void semi_sort(parlay::sequence<record<Object, Key> > &arr)
+void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 {
   // Create a frequency map for step 4
   size_t n = arr.size();
 
   // Step 2
   double logn = log2((double)n);
-  double p = SAMPLE_PROBABILITY_CONSTANT / logn; // this is theta(1 / log n) so we can autotune later
+  double p = min(SAMPLE_PROBABILITY_CONSTANT / logn, 0.25); // this is theta(1 / log n) so we can autotune later
 
-  uint32_t num_samples = ceil(n * p);
+  uint32_t num_samples = floor(n * p) - 1;
   assert(num_samples != 0);
 
 #ifdef DEBUG
@@ -158,10 +164,10 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 
   // Choose which items to sample
   parallel_for(0, num_samples, [&](size_t i)
-               { sample_index[(uint32_t)(rand() % num_samples + i / p)] = true; });
+               { sample_index[(uint32_t)(rand() % (n / num_samples) + i * n / num_samples)] = true; });
 
   // Pack sampled elements into smaller vector
-  parlay::sequence<record<Object, Key> > sample = parlay::pack(arr, sample_index);
+  parlay::sequence<record<Object, Key>> sample = parlay::pack(arr, sample_index);
 
 #ifdef DEBUG
   cout << "Sample Objects:" << endl;
@@ -238,7 +244,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 #endif
 
   // hash table T
-  parlay::hashtable<hash_buckets> hash_table(2*n, hash_buckets());
+  parlay::hashtable<hash_buckets> hash_table(2 * n, hash_buckets());
 
   // calculate the number of light buckets we want
   uint32_t num_buckets = LIGHT_KEY_BUCKET_CONSTANT * ((double)n / logn / logn + 1);
@@ -295,7 +301,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 #endif
 
   // A' in the paper
-  parlay::sequence<record<Object, Key> > buckets(current_bucket_offset + n);
+  parlay::sequence<record<Object, Key>> buckets(current_bucket_offset + n);
 
   // scatter heavy keys
   uint32_t num_partitions = (int)((double)n / logn);
@@ -415,7 +421,7 @@ void semi_sort(parlay::sequence<record<Object, Key> > &arr)
 
   for (uint32_t i = 1; i < num_partitions_step8; i++)
   {
-    interval_prefix_sum[i] = interval_length[i-1] + interval_prefix_sum[i - 1];
+    interval_prefix_sum[i] = interval_length[i - 1] + interval_prefix_sum[i - 1];
   }
 
 #ifdef DEBUG
