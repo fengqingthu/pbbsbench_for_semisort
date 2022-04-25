@@ -12,6 +12,8 @@
 #include "parlay/sequence.h"
 #include "parlay/hash_table.h"
 
+// #define DEBUG 1
+
 template <class A, class B>
 struct record
 {
@@ -153,7 +155,8 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 
   uint32_t num_samples = floor(n * p) - 1;
   assert(num_samples != 0);
-
+  cout << "p: " << p << endl;
+  cout << "cp: " << num_samples << endl;
 #ifdef DEBUG
   cout << "p: " << p << endl;
   cout << "cp: " << num_samples << endl;
@@ -166,7 +169,7 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
   parallel_for(0, num_samples, [&](size_t i)
                { sample_index[(uint32_t)(rand() % (n / num_samples) + i * n / num_samples)] = true; });
 
-  // Pack sampled elements into smaller vector
+  // // Pack sampled elements into smaller vector
   parlay::sequence<record<Object, Key>> sample = parlay::pack(arr, sample_index);
 
 #ifdef DEBUG
@@ -248,6 +251,10 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 
   // calculate the number of light buckets we want
   uint32_t num_buckets = LIGHT_KEY_BUCKET_CONSTANT * ((double)n / logn / logn + 1);
+
+  size_t nk = pow(arr.size(), HASH_RANGE_K);
+  uint64_t bucket_range = (double)nk / (double)num_buckets;
+
   parlay::sequence<uint32_t> light_key_bucket_sample_counts(num_buckets);
   parlay::sequence<Bucket> heavy_key_buckets;
 
@@ -265,7 +272,7 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
     else
     {
       // determine how big we should make the buckets
-      uint64_t bucket_num = unique_hashed_keys[i] / num_buckets;
+      uint64_t bucket_num = unique_hashed_keys[i] / bucket_range;
       light_key_bucket_sample_counts[bucket_num] += counts[i];
     }
   }
@@ -276,8 +283,7 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 
   // partition and create arrays for light keys here
   // 7a
-  size_t nk = pow(arr.size(), HASH_RANGE_K);
-  uint64_t bucket_range = (double)nk / (double)num_buckets;
+  
   parlay::sequence<Bucket> light_buckets(num_buckets);
 
   for (uint32_t i = 0; i < num_buckets; i++)
@@ -324,6 +330,9 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
                     }
                 }
                 insert_index++;
+                if (insert_index >= entry.offset + entry.size) {
+                  insert_index = entry.offset + rand() % entry.size;
+                }
             }
         } });
 
@@ -352,6 +361,9 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
                     }
                 }
                 insert_index++;
+                if (insert_index >= entry.offset + entry.size) {
+                  insert_index = entry.offset + rand() % entry.size;
+                }
             }
         } });
 
@@ -439,7 +451,8 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
         uint32_t start_range = interval_prefix_sum[partition];
         for(uint32_t i = 0; i < interval_length[partition]; i++) {
             arr[start_range + i] = buckets[chunk_length * partition + i];
-        } });
+        } 
+  });
 
 #ifdef DEBUG
   cout << "result" << endl;

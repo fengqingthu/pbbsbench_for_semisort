@@ -42,24 +42,23 @@ void checkSort(sequence<sequence<char>> In,
 
   size_t n = in_vals.size();
   const float HASH_RANGE_K = constants::HASH_RANGE_K;
-  long k = pow(n, HASH_RANGE_K);
+  uint64_t k = pow(n, HASH_RANGE_K);
 
   // Create frequency map to check output against
   map<T, size_t> frequency;
-  for (int i = 0; i < n; i++) {
-    // hashed input sequence here
-    in_vals[i] = static_cast<long>(parlay::hash64(in_vals[i]) % k);
+  for (size_t i = 0; i < n; i++) {
+    // hash input sequence here
+    in_vals[i] = parlay::hash64(in_vals[i]) % k + 1;
     if (frequency.count(in_vals[i]) == 0) {
       frequency[in_vals[i]] = 0;
     }
     frequency[in_vals[i]]++;
   }
   // for manual investigation
-  // writeSequenceToFile(in_vals, "/tmp/in_vals");
   writeSeqToFile("sequenceInt", in_vals, "/tmp/input_hashed_keys");
   // Check output against frequency table
   assert(n == out_vals.size());
-  int i = 0;
+  size_t i = 0;
   while (i < n) {
     T key = out_vals[i];
     if (frequency.count(key) == 0) {
@@ -102,18 +101,12 @@ int main(int argc, char* argv[]) {
   // elementType out_type = elementTypeFromHeader(Out[0]);
   size_t out_n = In.size() - 1;
 
-  // if (in_type != out_type) {
-  //   cout << argv[0] << ": in and out types don't match" << endl;
-  //   return(1);
-  // }
-  
   if (in_n != out_n) {
     cout << argv[0] << ": in and out lengths don't match" << endl;
     return(1);
   }
 
   auto less = [&] (uint a, uint b) {return a < b;};
-  auto lessp = [&] (uintPair a, uintPair b) {return a.first < b.first;};
   
-  checkSort<long>(In, Out, less);
+  checkSort<uint64_t>(In, Out, less);
 }

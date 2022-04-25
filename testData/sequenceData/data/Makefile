@@ -52,6 +52,50 @@ expDistSeq_10M_% : ../expDistSeq
 zipfDistSeq_10M_% : ../zipfDistSeq
 	../zipfDistSeq -t int $(subst zipfDistSeq_10M_,,$@) 10000000 $@
 
+uniDistSeq_1000000_% : ../uniDistSeq
+	../uniDistSeq -t int $(subst uniDistSeq_1000000_,,$@) 1000000 $@
+
+expDistSeq_1000000_% : ../expDistSeq
+	../expDistSeq -t int $(subst expDistSeq_1000000_,,$@) 1000000 $@
+
+zipfDistSeq_1000000_% : ../zipfDistSeq
+	../zipfDistSeq -t int $(subst zipfDistSeq_1000000_,,$@) 1000000 $@
+
+uniDistSeq_100000_% : ../uniDistSeq
+	../uniDistSeq -t int $(subst uniDistSeq_100000_,,$@) 100000 $@
+
+expDistSeq_100000_% : ../expDistSeq
+	../expDistSeq -t int $(subst expDistSeq_100000_,,$@) 100000 $@
+
+zipfDistSeq_100000_% : ../zipfDistSeq
+	../zipfDistSeq -t int $(subst zipfDistSeq_100000_,,$@) 100000 $@
+
+uniDistSeq_10000_% : ../uniDistSeq
+	../uniDistSeq -t int $(subst uniDistSeq_10000_,,$@) 10000 $@
+
+expDistSeq_10000_% : ../expDistSeq
+	../expDistSeq -t int $(subst expDistSeq_10000_,,$@) 10000 $@
+
+zipfDistSeq_10000_% : ../zipfDistSeq
+	../zipfDistSeq -t int $(subst zipfDistSeq_10000_,,$@) 10000 $@
+
+uniDistSeq_1000_% : ../uniDistSeq
+	../uniDistSeq -t int $(subst uniDistSeq_1000_,,$@) 1000 $@
+
+expDistSeq_1000_% : ../expDistSeq
+	../expDistSeq -t int $(subst expDistSeq_1000_,,$@) 1000 $@
+
+zipfDistSeq_1000_% : ../zipfDistSeq
+	../zipfDistSeq -t int $(subst zipfDistSeq_1000_,,$@) 1000 $@
+
+uniDistSeq_100_% : ../uniDistSeq
+	../uniDistSeq -t int $(subst uniDistSeq_100_,,$@) 100 $@
+
+expDistSeq_100_% : ../expDistSeq
+	../expDistSeq -t int $(subst expDistSeq_100_,,$@) 100 $@
+
+zipfDistSeq_100_% : ../zipfDistSeq
+	../zipfDistSeq -t int $(subst zipfDistSeq_100_,,$@) 100 $@
 # -------------------------------------------
 
 
