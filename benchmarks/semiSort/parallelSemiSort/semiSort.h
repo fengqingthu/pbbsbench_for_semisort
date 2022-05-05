@@ -11,6 +11,7 @@
 #include "parlay/parallel.h"
 #include "parlay/sequence.h"
 #include "parlay/hash_table.h"
+#include "parlay/random.h"
 
 // #define DEBUG 1
 
@@ -148,6 +149,8 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 {
   // Create a frequency map for step 4
   size_t n = arr.size();
+  parlay::random_generator gen;
+  std::uniform_int_distribution<size_t> dis(0, n-1);
 
   // Step 2
   double logn = log2((double)n);
@@ -155,8 +158,6 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 
   uint32_t num_samples = floor(n * p) - 1;
   assert(num_samples != 0);
-  cout << "p: " << p << endl;
-  cout << "cp: " << num_samples << endl;
 #ifdef DEBUG
   cout << "p: " << p << endl;
   cout << "cp: " << num_samples << endl;
@@ -167,7 +168,9 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 
   // Choose which items to sample
   parallel_for(0, num_samples, [&](size_t i)
-               { sample_index[(uint32_t)(rand() % (n / num_samples) + i * n / num_samples)] = true; });
+               {
+	auto r = gen[i];
+	sample_index[(uint32_t)(dis(r) % (n / num_samples) + i * n / num_samples)] = true; });
 
   // // Pack sampled elements into smaller vector
   parlay::sequence<record<Object, Key>> sample = parlay::pack(arr, sample_index);
@@ -319,8 +322,8 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
             Bucket entry = hash_table.find(arr[i].hashed_key);
             if (entry == (Bucket){0, 0, 0, 0}) // continue if it is not a heavy key
                 continue;
-
-            uint32_t insert_index = entry.offset + rand() % entry.size;
+            auto r = gen[partition];
+            uint32_t insert_index = entry.offset + dis(r) % entry.size;
             while (true) {
                 record<Object, Key> c = buckets[insert_index];
                 if (c.isEmpty()) {
@@ -331,7 +334,7 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
                 }
                 insert_index++;
                 if (insert_index >= entry.offset + entry.size) {
-                  insert_index = entry.offset + rand() % entry.size;
+                  insert_index = entry.offset + dis(r) % entry.size;
                 }
             }
         } });
@@ -350,8 +353,8 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
             Bucket entry = hash_table.find(rounded_down_key);
             if (entry == (Bucket){0, 0, 0, 0}) 
                 continue;
-
-            uint32_t insert_index = entry.offset + rand() % entry.size;
+            auto r = gen[partition];
+            uint32_t insert_index = entry.offset + dis(r) % entry.size;
             while (true) {
                 record<Object, Key> c = buckets[insert_index];
                 if (c.isEmpty()) {
@@ -362,7 +365,7 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
                 }
                 insert_index++;
                 if (insert_index >= entry.offset + entry.size) {
-                  insert_index = entry.offset + rand() % entry.size;
+                  insert_index = entry.offset + dis(r) % entry.size;
                 }
             }
         } });

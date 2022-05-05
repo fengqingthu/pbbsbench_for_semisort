@@ -80,8 +80,9 @@ namespace benchIO {
     for (int i=0; i < a.size(); i++) s[i] = a[i];}
 
   // ------------ Modification for semisort, supporting uint64 ----------------------
-  inline int xToStringLen(uint64_t a) { return 21;}
-  inline void xToString(char* s, uint64_t a) { sprintf(s,"%" PRIu64 "",a);}
+  //inline int xToStringLen(uint64_t a) { return 21;}
+  //inline void xToString(char* s, uint64_t a) { sprintf(s,"%" PRIu64 "",a);}
+  //inline void xToString(char* s, uint64_t a) { sprintf(s,"%lu",a);}
   // ---------------------------------------------------------------------------------
 
   inline int xToStringLen(long a) { return 21;}
