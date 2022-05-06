@@ -54,8 +54,8 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
 {
     size_t n = arr.size();
     auto int_scrap = parlay::sequence<uint64_t>::uninitialized(2 * n);
-    auto record_scrap = parlay::sequence<record<Object, Key>>::uninitialized(100 * n);
-    auto buckets = parlay::sequence<record<Object, Key>>::uninitialized(100 * n);
+    auto record_scrap = parlay::sequence<record<Object, Key>>::uninitialized(n);
+    auto buckets = parlay::sequence<record<Object, Key>>::uninitialized(n);
     semi_sort_without_alloc(arr, int_scrap, record_scrap, buckets);
 }
 
@@ -64,7 +64,7 @@ void semi_sort_without_alloc(
     parlay::sequence<record<Object, Key>> &arr,
     parlay::sequence<uint64_t> &int_scrap,
     parlay::sequence<record<Object, Key>> &record_scrap,
-    parlay::sequence<record<Object, Key>> &buckets)
+    parlay::sequence<record<Object, Key>> &buckets_arr)
 {
     // Create a frequency map for step 4
     size_t n = arr.size();
@@ -92,6 +92,7 @@ void semi_sort_without_alloc(
         num_samples, num_buckets, bucket_range, n, DELTA_THRESHOLD, p, F_C
     );
     uint32_t buckets_size = current_bucket_offset + n;
+    parlay::sequence<record<Object, Key>> buckets(buckets_size);
 
     // insert buckets into table in parallel
     parallel_for(0, heavy_key_buckets.size(), [&](size_t i) { 
