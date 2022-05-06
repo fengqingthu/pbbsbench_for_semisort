@@ -110,10 +110,64 @@ void semi_sort_without_alloc(
     }
 #endif
 
-    uint32_t num_partitions = (int)((double)n / logn);
     // scatter keys
-    scatter_keys(arr, buckets, hash_table, n, logn, num_partitions, bucket_range, gen, dis, true);
-    scatter_keys(arr, buckets, hash_table, n, logn, num_partitions, bucket_range, gen, dis, false);
+    // scatter heavy keys
+    uint32_t num_partitions = (int)((double)n / logn);
+    parallel_for(0, num_partitions + 1, [&](size_t partition)
+                 {
+        uint32_t end_partition = (uint32_t)((partition + 1) * logn);
+        uint32_t end_state = (end_partition > n) ? n : end_partition;
+        for(uint32_t i = partition * logn; i < end_state; i++) {
+            Bucket entry = hash_table.find(arr[i].hashed_key);
+            if (entry == (Bucket){0, 0, 0, 0}) // continue if it is not a heavy key
+                continue;
+            auto r = gen[partition];
+            uint32_t insert_index = entry.offset + dis(r) % entry.size;
+            while (true) {
+                record<Object, Key> c = buckets[insert_index];
+                if (c.isEmpty()) {
+                    if (bucket_cas(&buckets[insert_index].hashed_key, (uint64_t)0, arr[i].hashed_key)) {
+                        buckets[insert_index] = arr[i];
+                        break;
+                    }
+                }
+                insert_index++;
+                if (insert_index >= entry.offset + entry.size) {
+                  insert_index = entry.offset + dis(r) % entry.size;
+                }
+            }
+        } });
+
+    // 7b
+    // scatter light keys
+    parallel_for(0, num_partitions + 1, [&](size_t partition)
+                 {
+        uint32_t end_partition = (uint32_t)((partition + 1) * logn);
+        uint32_t end_state = (end_partition > n) ? n : end_partition;
+        for(uint32_t i = partition * logn; i < end_state; i++) {
+            uint64_t rounded_down_key = round_down(arr[i].hashed_key, bucket_range);
+            if (hash_table.find(arr[i].hashed_key) != (Bucket){0, 0, 0, 0}) // perhaps we can remove this somehow
+                continue;
+
+            Bucket entry = hash_table.find(rounded_down_key);
+            if (entry == (Bucket){0, 0, 0, 0}) 
+                continue;
+            auto r = gen[partition];
+            uint32_t insert_index = entry.offset + dis(r) % entry.size;
+            while (true) {
+                record<Object, Key> c = buckets[insert_index];
+                if (c.isEmpty()) {
+                    if (bucket_cas(&buckets[insert_index].hashed_key, (uint64_t)0, arr[i].hashed_key)) {
+                        buckets[insert_index] = arr[i];
+                        break;
+                    }
+                }
+                insert_index++;
+                if (insert_index >= entry.offset + entry.size) {
+                  insert_index = entry.offset + dis(r) % entry.size;
+                }
+            }
+        } });
 
     // Step 7b, 7c
     sort_light_buckets(buckets, light_buckets, n, num_buckets);

@@ -86,7 +86,7 @@ inline uint32_t get_bucket_sizes(
 {
     // Step 4
     uint32_t gamma = DELTA_THRESHOLD * log(n);
-    parlay::sequence<uint64_t> differences = int_scrap;
+    parlay::sequence<uint64_t> differences(num_samples);
     // get array differences
     parallel_for(0, num_samples, [&](size_t i) {
         if (record_scrap[i].hashed_key != record_scrap[i+1].hashed_key){
