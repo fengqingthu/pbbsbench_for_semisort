@@ -1,5 +1,4 @@
 #include "semiSortTypes.h"
-#define DEBUG 1
 
 using namespace std;
 using parlay::parallel_for;
