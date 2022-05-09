@@ -46,26 +46,24 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
 
   writeSeqToFile("sequenceInt", in_vals, "/tmp/input_hashed_keys");
 
-  // auto int_scrap = parlay::sequence<uint64_t>::uninitialized(2 * n);
-  // auto record_scrap = parlay::sequence<record<string, T>>::uninitialized(n);
+  auto int_scrap = parlay::sequence<uint64_t>::uninitialized(2 * n);
+  auto record_scrap = parlay::sequence<record<string, T>>::uninitialized(n);
   
-  // sequence<record<string, T>> buckets;
+  sequence<record<string, T>> buckets;
   sequence<record<string, T>> R(n);
   time_loop(
       rounds, 1.0,
       [&]()
       {
-        // parlay::parallel_for(0, 2 * n, [&](size_t i)
-        //                      { int_scrap[i] = 0; });
+        parlay::parallel_for(0, 2 * n, [&](size_t i)
+                             { int_scrap[i] = 0; });
         parlay::parallel_for(0, n, [&](size_t i)
                              { R[i] = records[i]; });
-        // uint32_t bucket_size = get_bucket_size(R, int_scrap, record_scrap);
-        // buckets = sequence<record<string, T>>(bucket_size);
+        uint32_t bucket_size = get_bucket_size(R, int_scrap, record_scrap);
+        buckets = sequence<record<string, T>>(bucket_size);
       },
       [&]()
-      { 
-        // semi_sort_without_alloc<string, T>(R, int_scrap, record_scrap, buckets);
-      semi_sort<string, T>(R); },
+      { semi_sort_without_alloc<string, T>(R, int_scrap, record_scrap, buckets); },
       []() {});
 
   sequence<T> out(n);
