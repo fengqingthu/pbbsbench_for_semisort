@@ -5,8 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <random>
-
-#include "semiSortHelpers.h"
+#include "semisort_helpers.h"
 
 // ----------------------- DECLARATION -------------------------
 namespace constants
@@ -50,21 +49,10 @@ void semi_sort_with_hash(parlay::sequence<record<Object, Key>> &arr)
 }
 
 template <class Object, class Key>
-void semi_sort(parlay::sequence<record<Object, Key>> &arr)
-{
-    size_t n = arr.size();
-    auto int_scrap = parlay::sequence<uint64_t>::uninitialized(2 * n);
-    auto record_scrap = parlay::sequence<record<Object, Key>>::uninitialized(n);
-    auto buckets = parlay::sequence<record<Object, Key>>::uninitialized(n);
-    semi_sort_without_alloc(arr, int_scrap, record_scrap, buckets);
-}
-
-template <class Object, class Key>
-void semi_sort_without_alloc(
+uint32_t get_bucket_size(
     parlay::sequence<record<Object, Key>> &arr,
     parlay::sequence<uint64_t> &int_scrap,
-    parlay::sequence<record<Object, Key>> &record_scrap,
-    parlay::sequence<record<Object, Key>> &buckets_arr)
+    parlay::sequence<record<Object, Key>> &record_scrap)
 {
     // Create a frequency map for step 4
     size_t n = arr.size();
@@ -89,10 +77,44 @@ void semi_sort_without_alloc(
     uint32_t current_bucket_offset = get_bucket_sizes(
         arr, int_scrap, record_scrap, hash_table,
         heavy_key_buckets, light_buckets,
-        num_samples, num_buckets, bucket_range, n, DELTA_THRESHOLD, p, F_C
-    );
+        num_samples, num_buckets, bucket_range, n, DELTA_THRESHOLD, p, F_C);
     uint32_t buckets_size = current_bucket_offset + n;
-    parlay::sequence<record<Object, Key>> buckets(buckets_size);
+
+    return buckets_size;
+}
+
+template <class Object, class Key>
+void semi_sort_without_alloc(
+    parlay::sequence<record<Object, Key>> &arr,
+    parlay::sequence<uint64_t> &int_scrap,
+    parlay::sequence<record<Object, Key>> &record_scrap,
+    parlay::sequence<record<Object, Key>> &buckets)
+{
+    // Create a frequency map for step 4
+    size_t n = arr.size();
+    parlay::random_generator gen;
+    std::uniform_int_distribution<size_t> dis(0, n - 1);
+
+    // Step 2
+    double logn = log2((double)n);
+    double p = min(SAMPLE_PROBABILITY_CONSTANT / logn, 0.25); // this is theta(1 / log n) so we can autotune later
+    uint32_t num_samples = floor(n * p) - 1;
+    assert(num_samples != 0);
+
+    get_sampled_elements(arr, int_scrap, record_scrap, num_samples, n, gen, dis);
+
+    // hash table T
+    parlay::hashtable<hash_buckets> hash_table(2 * n, hash_buckets());
+    parlay::sequence<Bucket> heavy_key_buckets;
+    uint32_t num_buckets = LIGHT_KEY_BUCKET_CONSTANT * ((double)n / logn / logn + 1);
+    parlay::sequence<Bucket> light_buckets(num_buckets);
+    size_t nk = pow(arr.size(), HASH_RANGE_K);
+    uint64_t bucket_range = (double)nk / (double)num_buckets;
+    uint32_t current_bucket_offset = get_bucket_sizes(
+        arr, int_scrap, record_scrap, hash_table,
+        heavy_key_buckets, light_buckets,
+        num_samples, num_buckets, bucket_range, n, DELTA_THRESHOLD, p, F_C);
+    uint32_t buckets_size = current_bucket_offset + n;
 
     // insert buckets into table in parallel
     parallel_for(0, heavy_key_buckets.size(), [&](size_t i) { 
@@ -114,8 +136,7 @@ void semi_sort_without_alloc(
     // scatter keys
     // scatter heavy keys
     uint32_t num_partitions = (int)((double)n / logn);
-    parallel_for(0, num_partitions + 1, [&](size_t partition)
-                 {
+    parallel_for(0, num_partitions + 1, [&](size_t partition) {
         uint32_t end_partition = (uint32_t)((partition + 1) * logn);
         uint32_t end_state = (end_partition > n) ? n : end_partition;
         for(uint32_t i = partition * logn; i < end_state; i++) {
@@ -137,12 +158,12 @@ void semi_sort_without_alloc(
                   insert_index = entry.offset + dis(r) % entry.size;
                 }
             }
-        } });
+        } 
+    });
 
     // 7b
     // scatter light keys
-    parallel_for(0, num_partitions + 1, [&](size_t partition)
-                 {
+    parallel_for(0, num_partitions + 1, [&](size_t partition) {
         uint32_t end_partition = (uint32_t)((partition + 1) * logn);
         uint32_t end_state = (end_partition > n) ? n : end_partition;
         for(uint32_t i = partition * logn; i < end_state; i++) {
@@ -168,7 +189,8 @@ void semi_sort_without_alloc(
                   insert_index = entry.offset + dis(r) % entry.size;
                 }
             }
-        } });
+        } 
+    });
 
     // Step 7b, 7c
     sort_light_buckets(buckets, light_buckets, n, num_buckets);
@@ -190,4 +212,15 @@ void semi_sort_without_alloc(
         cout << i << " " << arr[i].obj << " " << arr[i].key << " " << arr[i].hashed_key << endl;
     }
 #endif
+}
+
+template <class Object, class Key>
+void semi_sort(parlay::sequence<record<Object, Key>> &arr)
+{
+    size_t n = arr.size();
+    auto int_scrap = parlay::sequence<uint64_t>::uninitialized(2 * n);
+    auto record_scrap = parlay::sequence<record<Object, Key>>::uninitialized(n);
+    uint32_t bucket_size = get_bucket_size(arr, int_scrap, record_scrap);
+    parlay::sequence<record<Object, Key>> buckets(bucket_size);
+    semi_sort_without_alloc(arr, int_scrap, record_scrap, buckets);
 }
