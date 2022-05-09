@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <random>
-#include "semisort_helpers.h"
+#include "semiSortHelpers.h"
 
 // ----------------------- DECLARATION -------------------------
 namespace constants
