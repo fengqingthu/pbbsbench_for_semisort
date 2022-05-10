@@ -88,7 +88,8 @@ void semi_sort_without_alloc(
     parlay::sequence<record<Object, Key>> &arr,
     parlay::sequence<uint64_t> &int_scrap,
     parlay::sequence<record<Object, Key>> &record_scrap,
-    parlay::sequence<record<Object, Key>> &buckets)
+    parlay::sequence<record<Object, Key>> &buckets,
+    parlay::hashtable<hash_buckets> &hash_table)
 {
     // Create a frequency map for step 4
     size_t n = arr.size();
@@ -104,7 +105,6 @@ void semi_sort_without_alloc(
     get_sampled_elements(arr, int_scrap, record_scrap, num_samples, n, gen, dis);
 
     // hash table T
-    parlay::hashtable<hash_buckets> hash_table(2 * n, hash_buckets());
     parlay::sequence<Bucket> heavy_key_buckets;
     uint32_t num_buckets = LIGHT_KEY_BUCKET_CONSTANT * ((double)n / logn / logn + 1);
     parlay::sequence<Bucket> light_buckets(num_buckets);
@@ -159,7 +159,7 @@ void semi_sort_without_alloc(
                 }
             }
         } 
-    });
+    }, 1);
 
     // 7b
     // scatter light keys
@@ -167,10 +167,11 @@ void semi_sort_without_alloc(
         uint32_t end_partition = (uint32_t)((partition + 1) * logn);
         uint32_t end_state = (end_partition > n) ? n : end_partition;
         for(uint32_t i = partition * logn; i < end_state; i++) {
-            uint64_t rounded_down_key = round_down(arr[i].hashed_key, bucket_range);
             if (hash_table.find(arr[i].hashed_key) != (Bucket){0, 0, 0, 0}) // perhaps we can remove this somehow
-                continue;
-
+                continue;    
+	
+	    uint64_t rounded_down_key = round_down(arr[i].hashed_key, bucket_range);
+	
             Bucket entry = hash_table.find(rounded_down_key);
             if (entry == (Bucket){0, 0, 0, 0}) 
                 continue;
@@ -190,7 +191,7 @@ void semi_sort_without_alloc(
                 }
             }
         } 
-    });
+    }, 1);
 
     // Step 7b, 7c
     sort_light_buckets(buckets, light_buckets, n, num_buckets);
@@ -222,5 +223,6 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
     auto record_scrap = parlay::sequence<record<Object, Key>>::uninitialized(n);
     uint32_t bucket_size = get_bucket_size(arr, int_scrap, record_scrap);
     parlay::sequence<record<Object, Key>> buckets(bucket_size);
-    semi_sort_without_alloc(arr, int_scrap, record_scrap, buckets);
+    parlay::hashtable<hash_buckets> hash_table(2 * n, hash_buckets());
+    semi_sort_without_alloc(arr, int_scrap, record_scrap, buckets, hash_table);
 }

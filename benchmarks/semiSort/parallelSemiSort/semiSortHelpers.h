@@ -253,7 +253,7 @@ inline void sort_light_buckets(
                 buckets[j].hashed_key = 0;
             }
         }); 
-    });
+    }, 1);
 }
 
 template <class Object, class Key>
@@ -281,7 +281,7 @@ inline void pack_elements(
             }
         }
         interval_length[partition] = cur_chunk_pointer;
-    });
+    }, 1);
 
 #ifdef DEBUG
     cout << "bucket after pack" << endl;
@@ -311,5 +311,5 @@ inline void pack_elements(
         for(uint32_t i = 0; i < interval_length[partition]; i++) {
             arr[start_range + i] = buckets[chunk_length * partition + i];
         } 
-    });
+    }, 1);
 }
