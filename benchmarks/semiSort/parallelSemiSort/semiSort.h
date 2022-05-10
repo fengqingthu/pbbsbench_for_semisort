@@ -89,6 +89,7 @@ void semi_sort_without_alloc(
     parlay::sequence<uint64_t> &int_scrap,
     parlay::sequence<record<Object, Key>> &record_scrap,
     parlay::sequence<record<Object, Key>> &buckets,
+    parlay::sequence<record<Object, Key>> &buckets_scrap,
     parlay::hashtable<hash_buckets> &hash_table)
 {
     // Create a frequency map for step 4
@@ -196,7 +197,7 @@ void semi_sort_without_alloc(
     }, 1);
 
     // Step 7b, 7c
-    sort_light_buckets(buckets, buckets, light_buckets, n, num_buckets);
+    sort_light_buckets(buckets, buckets_scrap, light_buckets, n, num_buckets);
 #ifdef DEBUG
     cout << "bucket" << endl;
     for (uint32_t i = 0; i < buckets_size; i++)
@@ -206,7 +207,7 @@ void semi_sort_without_alloc(
 #endif
 
     // step 8
-    pack_elements(arr, buckets, buckets, light_buckets_start, buckets_size);
+    pack_elements(arr, buckets, buckets_scrap, light_buckets_start, buckets_size);
 
 #ifdef DEBUG
     cout << "final result" << endl;
