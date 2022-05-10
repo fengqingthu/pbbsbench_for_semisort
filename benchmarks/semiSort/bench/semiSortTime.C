@@ -50,7 +50,6 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
   auto record_scrap = parlay::sequence<record<string, T>>::uninitialized(n);
   uint32_t bucket_size = get_bucket_size(records, int_scrap, record_scrap);
   sequence<record<string, T>> buckets(bucket_size);
-  sequence<record<string, T>> buckets_scrap(bucket_size);
   sequence<record<string, T>> R(n);
   parlay::hashtable<hash_buckets> hash_table(2 * n, hash_buckets());
   time_loop(
@@ -65,11 +64,9 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
                              { R[i] = records[i]; });
         parlay::parallel_for(0, bucket_size, [&](size_t i)
                              { buckets[i] = (record<string, T>){"", 0, 0}; });
-        parlay::parallel_for(0, bucket_size, [&](size_t i)
-                             { buckets_scrap[i] = (record<string, T>){"", 0, 0}; });
       },
       [&]()
-      { semi_sort_without_alloc<string, T>(R, int_scrap, record_scrap, buckets, buckets_scrap, hash_table); },
+      { semi_sort_without_alloc<string, T>(R, int_scrap, record_scrap, buckets, buckets, hash_table); },
       []() {});
 
   sequence<T> out(n);
