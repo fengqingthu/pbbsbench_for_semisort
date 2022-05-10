@@ -241,7 +241,7 @@ inline void sort_light_buckets(
         // sort here
         uint32_t start_range = light_buckets[i].offset;
         uint32_t end_range = light_buckets[i].offset + light_buckets[i].size;
-        std::sort(buckets.begin() + start_range, buckets.begin() + end_range, light_key_comparison); // sort light buckets
+        parlay::sort_inplace(buckets.cut(start_range, end_range), light_key_comparison); // sort light buckets
         parlay::filter_into_uninitialized(
             buckets.cut(start_range, end_range),
             buckets_scrap.cut(start_range, end_range),

@@ -52,12 +52,12 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
   sequence<record<string, T>> buckets(bucket_size);
   sequence<record<string, T>> buckets_scrap(bucket_size);
   sequence<record<string, T>> R(n);
-  parlay::hashtable<hash_buckets> hash_table(2 * n, hash_buckets());
+  parlay::hashtable<hash_buckets> hash_table(5 * n, hash_buckets());
   time_loop(
       rounds, 1.0,
       [&]()
       {	
-      	parlay::hashtable<hash_buckets> newht(2 * n, hash_buckets());
+      	parlay::hashtable<hash_buckets> newht(5 * n, hash_buckets());
       	hash_table = newht;
         parlay::parallel_for(0, 2 * n, [&](size_t i)
                              { int_scrap[i] = 0; });
