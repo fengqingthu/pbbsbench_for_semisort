@@ -77,7 +77,7 @@ uint32_t get_bucket_size(
     uint32_t current_bucket_offset = get_bucket_sizes(
         arr, int_scrap, record_scrap, hash_table,
         heavy_key_buckets, light_buckets,
-        num_samples, num_buckets, bucket_range, n, DELTA_THRESHOLD, p, F_C);
+        num_samples, num_buckets, bucket_range, n, DELTA_THRESHOLD, p, F_C).first;
     uint32_t buckets_size = current_bucket_offset + n;
 
     return buckets_size;
@@ -89,6 +89,7 @@ void semi_sort_without_alloc(
     parlay::sequence<uint64_t> &int_scrap,
     parlay::sequence<record<Object, Key>> &record_scrap,
     parlay::sequence<record<Object, Key>> &buckets,
+    parlay::sequence<record<Object, Key>> &buckets_scrap,
     parlay::hashtable<hash_buckets> &hash_table)
 {
     // Create a frequency map for step 4
@@ -110,10 +111,12 @@ void semi_sort_without_alloc(
     parlay::sequence<Bucket> light_buckets(num_buckets);
     size_t nk = pow(arr.size(), HASH_RANGE_K);
     uint64_t bucket_range = (double)nk / (double)num_buckets;
-    uint32_t current_bucket_offset = get_bucket_sizes(
+    pair<uint32_t, uint32_t> bucket_offset = get_bucket_sizes(
         arr, int_scrap, record_scrap, hash_table,
         heavy_key_buckets, light_buckets,
         num_samples, num_buckets, bucket_range, n, DELTA_THRESHOLD, p, F_C);
+    uint32_t current_bucket_offset = bucket_offset.first;
+    uint32_t light_buckets_start = bucket_offset.second;
     uint32_t buckets_size = current_bucket_offset + n;
 
     // insert buckets into table in parallel
@@ -194,7 +197,7 @@ void semi_sort_without_alloc(
     }, 1);
 
     // Step 7b, 7c
-    sort_light_buckets(buckets, light_buckets, n, num_buckets);
+    sort_light_buckets(buckets, buckets_scrap, light_buckets, n, num_buckets);
 #ifdef DEBUG
     cout << "bucket" << endl;
     for (uint32_t i = 0; i < buckets_size; i++)
@@ -204,7 +207,7 @@ void semi_sort_without_alloc(
 #endif
 
     // step 8
-    pack_elements(arr, buckets, buckets_size);
+    pack_elements(arr, buckets, buckets_scrap, light_buckets_start, buckets_size);
 
 #ifdef DEBUG
     cout << "final result" << endl;
@@ -223,6 +226,7 @@ void semi_sort(parlay::sequence<record<Object, Key>> &arr)
     auto record_scrap = parlay::sequence<record<Object, Key>>::uninitialized(n);
     uint32_t bucket_size = get_bucket_size(arr, int_scrap, record_scrap);
     parlay::sequence<record<Object, Key>> buckets(bucket_size);
+    parlay::sequence<record<Object, Key>> buckets_scrap(bucket_size);
     parlay::hashtable<hash_buckets> hash_table(2 * n, hash_buckets());
-    semi_sort_without_alloc(arr, int_scrap, record_scrap, buckets, hash_table);
+    semi_sort_without_alloc(arr, int_scrap, record_scrap, buckets, buckets_scrap, hash_table);
 }

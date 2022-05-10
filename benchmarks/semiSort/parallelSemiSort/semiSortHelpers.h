@@ -69,7 +69,7 @@ inline void get_sampled_elements(
 }
 
 template <class Object, class Key>
-inline uint32_t get_bucket_sizes(
+inline pair<uint32_t, uint32_t> get_bucket_sizes(
     parlay::sequence<record<Object, Key>> &arr,
     parlay::sequence<uint64_t> &int_scrap,
     parlay::sequence<record<Object, Key>> &record_scrap,
@@ -137,6 +137,8 @@ inline uint32_t get_bucket_sizes(
         }
     }
 
+    uint32_t light_bucket_start = current_bucket_offset;
+
     for (uint32_t i = 0; i < num_buckets; i++)
     {
         uint32_t bucket_size = size_func(light_key_bucket_sample_counts[i], p, n, F_C);
@@ -169,7 +171,7 @@ inline uint32_t get_bucket_sizes(
     }
 #endif
 
-    return current_bucket_offset;
+    return make_pair(current_bucket_offset, light_bucket_start);
 }
 
 template <class Object, class Key>
@@ -226,6 +228,7 @@ inline void scatter_keys(
 template <class Object, class Key>
 inline void sort_light_buckets(
     parlay::sequence<record<Object, Key>> &buckets,
+    parlay::sequence<record<Object, Key>> &buckets_scrap,
     parlay::sequence<Bucket> &light_buckets,
     uint32_t n,
     uint32_t num_buckets)
@@ -239,20 +242,10 @@ inline void sort_light_buckets(
         uint32_t start_range = light_buckets[i].offset;
         uint32_t end_range = light_buckets[i].offset + light_buckets[i].size;
         parlay::sort_inplace(buckets.cut(start_range, end_range), light_key_comparison); // sort light buckets
-
-        auto out_cut = buckets.cut(start_range, end_range); // is this packing correct?
-        parlay::sequence<record<Object, Key>> filtered = parlay::filter(
+        parlay::filter_into_uninitialized(
             buckets.cut(start_range, end_range),
-            light_key_filter
-        ); 
-        parallel_for(start_range, end_range, [&](size_t j) {
-            if (j - start_range < filtered.size()) {
-                buckets[j] = filtered[j-start_range];
-            } else{
-                buckets[j] = (record<Object, Key>){};
-                buckets[j].hashed_key = 0;
-            }
-        }); 
+            buckets_scrap.cut(start_range, end_range),
+            light_key_filter);
     }, 1);
 }
 
@@ -260,6 +253,8 @@ template <class Object, class Key>
 inline void pack_elements(
     parlay::sequence<record<Object, Key>> &arr,
     parlay::sequence<record<Object, Key>> &buckets,
+    parlay::sequence<record<Object, Key>> &buckets_scrap,
+    uint32_t light_bucket_start,
     uint32_t buckets_size)
 {
     uint32_t num_partitions_step8 = min((uint32_t)1000, (uint32_t)buckets_size);
@@ -274,10 +269,21 @@ inline void pack_elements(
         {
             if (start_range + i >= buckets_size)
                 break;
-            if (buckets[start_range + i].hashed_key != 0)
+            if (start_range + i >= light_bucket_start)
             {
-                buckets[start_range + cur_chunk_pointer] = buckets[start_range + i];
-                cur_chunk_pointer++;
+                if (buckets_scrap[start_range + i].hashed_key != 0)
+                {
+                    buckets[start_range + cur_chunk_pointer] = buckets_scrap[start_range + i];
+                    cur_chunk_pointer++;
+                }
+            }
+            else
+            {
+                if (buckets[start_range + i].hashed_key != 0)
+                {
+                    buckets[start_range + cur_chunk_pointer] = buckets[start_range + i];
+                    cur_chunk_pointer++;
+                }
             }
         }
         interval_length[partition] = cur_chunk_pointer;
