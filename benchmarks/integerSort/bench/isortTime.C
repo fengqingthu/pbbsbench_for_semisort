@@ -42,7 +42,8 @@ void timeIntegerSort(sequence<sequence<char>> In, int rounds, int bits, char* ou
   for (size_t i = 0; i < n; i++) {
     hashed_vals[i] = parlay::hash64(in_vals[i]) % k + 1;
   }
-  sequence<uint64_t> R;
+  parlay::sequence<uint64_t> R(n);
+  writeSeqToFile("sequnceInt", hashed_vals, "/tmp/isort_hashed_vals");
   time_loop(rounds, 1.0,
        [&] () {R.clear();},
       //  [&] () {R = int_sort(make_slice(in_vals.data(),in_vals.data()+n), bits);},

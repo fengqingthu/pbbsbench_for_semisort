@@ -38,7 +38,7 @@ void checkSort(sequence<sequence<char>> In,
 	       sequence<sequence<char>> Out,
 	       LESS less) {
   sequence<T> in_vals = parseElements<T>(In.cut(1, In.size()));
-  sequence<T> out_vals = parseElements<T>(Out.cut(1, In.size()));
+  sequence<uint64_t> out_vals = parseElements<uint64_t>(Out.cut(1, In.size()));
   size_t n = in_vals.size();
   uint64_t k = pow(n, HASH_RANGE_K);
   auto sorted_in = parlay::stable_sort(in_vals, less);

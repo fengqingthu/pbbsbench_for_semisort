@@ -6,8 +6,25 @@ checkProgram="../bench/isortCheck"
 dataDir = "../sequenceData/data"
 
 tests = [
-    [1, "randomSeq_100M_int", "-b 27", ""], 
-    [1, "exptSeq_100M_int", "-b 27", ""], 
+    [1, "expDistSeq_100M_100", "-b 64", ""],
+    [1, "expDistSeq_100M_1000", "-b 64", ""],
+    [1, "expDistSeq_100M_10000", "-b 64", ""],
+    [1, "expDistSeq_100M_100000", "-b 64", ""],
+    [1, "expDistSeq_100M_300000", "-b 64", ""],
+    [1, "expDistSeq_100M_1000000", "-b 64", ""],
+    [1, "uniDistSeq_100M_10", "-b 64", ""],
+    [1, "uniDistSeq_100M_100000", "-b 64", ""],
+    [1, "uniDistSeq_100M_320000", "-b 64", ""],
+    [1, "uniDistSeq_100M_500000", "-b 64", ""],
+    [1, "uniDistSeq_100M_1000000", "-b 64", ""],
+    [1, "uniDistSeq_100M_100000000", "-b 64", ""],
+    [1, "zipfDistSeq_100M_10000", "-b 64", ""],
+    [1, "zipfDistSeq_100M_100000", "-b 64", ""],
+    [1, "zipfDistSeq_100M_1000000", "-b 64", ""],
+    [1, "zipfDistSeq_100M_10000000", "-b 64", ""],
+    [1, "zipfDistSeq_100M_100000000", "-b 64", ""],
+    #[1, "randomSeq_100M_int", "-b 27", ""], 
+    #[1, "exptSeq_100M_int", "-b 27", ""], 
     # [1, "randomSeq_100M_int_pair_int", "-b 27", ""], 
     # [1, "randomSeq_100M_256_int_pair_int", "-b 8", ""], 
     ] 
@@ -16,3 +33,4 @@ import sys
 sys.path.insert(0, 'common')
 import runTests
 runTests.timeAllArgs(bnchmrk, benchmark, checkProgram, dataDir, tests)
+
