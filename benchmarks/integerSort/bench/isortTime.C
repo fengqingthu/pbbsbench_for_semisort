@@ -30,16 +30,26 @@
 using namespace std;
 using namespace benchIO;
 
+const float HASH_RANGE_K = 2.25;
+
 template <class T>
 void timeIntegerSort(sequence<sequence<char>> In, int rounds, int bits, char* outFile) {
   auto in_vals = parseElements<T>(In.cut(1, In.size()));
   size_t n = in_vals.size();
-  sequence<T> R;
+  uint64_t k = pow(n, HASH_RANGE_K);
+  uint64_t bits_needed = ceil(log2(k));
+  parlay::sequence<uint64_t> hashed_vals(n);
+  for (size_t i = 0; i < n; i++) {
+    hashed_vals[i] = parlay::hash64(in_vals[i]) % k + 1;
+  }
+  sequence<uint64_t> R;
   time_loop(rounds, 1.0,
        [&] () {R.clear();},
-       [&] () {R = int_sort(make_slice(in_vals.data(),in_vals.data()+n), bits);},
+      //  [&] () {R = int_sort(make_slice(in_vals.data(),in_vals.data()+n), bits);},
+       [&] () {R = int_sort<uint64_t>(make_slice(hashed_vals.data(), hashed_vals.data()+n), bits_needed);},
        [] () {});
-  if (outFile != NULL) writeSequenceToFile(R, outFile);
+  // if (outFile != NULL) writeSequenceToFile(R, outFile);
+  if (outFile != NULL) writeSeqToFile("sequenceInt", R, outFile);
 }
 
 int main(int argc, char* argv[]) {
@@ -58,7 +68,7 @@ int main(int argc, char* argv[]) {
     timeIntegerSort<uint>(In, rounds, bits, oFile);
     break;
   case intPairT: 
-    timeIntegerSort<uintPair>(In, rounds, bits, oFile);
+    // timeIntegerSort<uintPair>(In, rounds, bits, oFile);
     break;
   default:
     cout << "integer Sort: input file not of right type" << endl;

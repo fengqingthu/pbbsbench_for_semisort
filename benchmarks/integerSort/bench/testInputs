@@ -8,8 +8,8 @@ dataDir = "../sequenceData/data"
 tests = [
     [1, "randomSeq_100M_int", "-b 27", ""], 
     [1, "exptSeq_100M_int", "-b 27", ""], 
-    [1, "randomSeq_100M_int_pair_int", "-b 27", ""], 
-    [1, "randomSeq_100M_256_int_pair_int", "-b 8", ""], 
+    # [1, "randomSeq_100M_int_pair_int", "-b 27", ""], 
+    # [1, "randomSeq_100M_256_int_pair_int", "-b 8", ""], 
     ] 
 
 import sys

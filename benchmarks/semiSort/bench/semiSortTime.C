@@ -48,9 +48,9 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
 
   auto int_scrap = parlay::sequence<uint64_t>::uninitialized(2 * n);
   auto record_scrap = parlay::sequence<record<string, T>>::uninitialized(n);
+  sequence<record<string, T>> R(n);
   uint32_t bucket_size = get_bucket_size(R, int_scrap, record_scrap);
   sequence<record<string, T>> buckets(bucket_size);
-  sequence<record<string, T>> R(n);
   time_loop(
       rounds, 1.0,
       [&]()

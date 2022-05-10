@@ -31,6 +31,8 @@
 using namespace std;
 using namespace benchIO;
 
+const float HASH_RANGE_K = 2.25;
+
 template <class T, class LESS>
 void checkSort(sequence<sequence<char>> In,
 	       sequence<sequence<char>> Out,
@@ -38,10 +40,11 @@ void checkSort(sequence<sequence<char>> In,
   sequence<T> in_vals = parseElements<T>(In.cut(1, In.size()));
   sequence<T> out_vals = parseElements<T>(Out.cut(1, In.size()));
   size_t n = in_vals.size();
+  uint64_t k = pow(n, HASH_RANGE_K);
   auto sorted_in = parlay::stable_sort(in_vals, less);
   size_t error = n;
   parlay::parallel_for (0, n, [&] (size_t i) {
-      if (out_vals[i] != sorted_in[i]) 
+      if (out_vals[i] != parlay::hash64(sorted_in[i]) % k + 1) 
 	pbbs::write_min(&error,i,std::less<size_t>());
   });
   if (error < n) {
@@ -85,7 +88,7 @@ int main(int argc, char* argv[]) {
     checkSort<uint>(In, Out, less);
     break; 
   case intPairT: 
-    checkSort<uintPair>(In, Out, lessp);
+    // checkSort<uintPair>(In, Out, lessp);
     break; 
   default:
     cout << argv[0] << ": input files not of right type" << endl;
