@@ -66,7 +66,7 @@ void timeSemiSort(sequence<sequence<char>> In, int rounds, char* outFile) {
                              { buckets[i] = (record<string, T>){"", 0, 0}; });
       },
       [&]()
-      { semi_sort_without_alloc<string, T>(R, int_scrap, record_scrap, buckets, buckets, hash_table); },
+      { semi_sort_without_alloc<string, T>(R, int_scrap, record_scrap, buckets, hash_table); },
       []() {});
 
   sequence<T> out(n);
